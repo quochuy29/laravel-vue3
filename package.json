@@ -15,22 +15,23 @@
         "ant-design-vue": "^3.2.15",
         "vue": "^3.2.36",
         "vue-loader": "^17.0.1",
+        "vue-moment": "^4.1.0",
         "vue-router": "^4.0.13"
     },
     "eslintConfig": {
         "root": true,
         "env": {
-          "node": true
+            "node": true
         },
         "extends": [
-          "plugin:vue/essential",
-          "eslint:recommended"
+            "plugin:vue/essential",
+            "eslint:recommended"
         ],
         "parserOptions": {
-          "parser": "babel-eslint"
+            "parser": "babel-eslint"
         },
         "rules": {
-          "vue/no-multiple-template-root": "off"
+            "vue/no-multiple-template-root": "off"
         }
-      }
+    }
 }

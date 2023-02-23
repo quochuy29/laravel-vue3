@@ -7,4 +7,3 @@ import App from './fronts/App.vue';
 import Router from './fronts/routes/Router';
 
 const app = createApp(App).use(Router).use(Antd).mount("#app");
-console.log(app.config);

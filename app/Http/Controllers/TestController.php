@@ -33,15 +33,47 @@ class TestController extends Controller
     }
 
     public function add(Request $request) {
+        $calendar = Calendar::where('date', '=', $request->date)->first();
+
+        if ($calendar) {
+            $calendar->title = $this->buildDataTitleCalendar($request->title ?? [], $calendar->title);
+            $calendar->save();
+            return json_encode(['status' => 200]);
+        }
+
         $model = new Calendar();
         $model->date = $request->date;
-        $model->title = $this->formatDataJson($request->title);
+        $model->title = $this->buildDataTitleCalendar($request->title ?? []);
         $model->save();
+
+        return json_encode(['status' => 200]);
     }
 
-    public function formatDataJson($data)
+    public function buildDataTitleCalendar($data = [], $dataDate = '[]')
     {
-        $data1['title'] = $data;
-       return json_encode($data1);
+        if ($data == '') {
+            return $data;
+        }
+
+        $buildData = [];
+        foreach ($data as $key => $value) {
+            if ($value['type'] == '') {
+                $value['type'] = '';
+                $data[$key] = $value;
+            }
+
+            if ($value['content'] == '') {
+                $value['content'] = '';
+                $data[$key] = $value;
+            }
+        }
+        $dataNew = json_decode($dataDate, true);
+
+        if (!empty($dataNew)) {
+            $data = array_merge($data, $dataNew);
+        }
+
+        $buildData = json_encode($data);
+        return $buildData;
     }
 }
