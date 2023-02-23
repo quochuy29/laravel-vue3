@@ -46,10 +46,14 @@ export default defineComponent({
     setup() {
         const value = ref();
         const data = ref([]);
-        onMounted(async () => {
+        const getDataCalendar = async() => {
             const datas = await axios.get('api/calendar');
             data.value = datas.data;
+        };
+        onMounted(async() => {
+            await getDataCalendar();
         });
+
         const getListData = (value, dataIp = {}) => {
             let listData;
             data.value.forEach((date) => {
@@ -62,7 +66,6 @@ export default defineComponent({
                     }
                 }
             });
-            console.log(listData);
             return listData || [];
         };
 
@@ -75,7 +78,8 @@ export default defineComponent({
         return {
             value,
             getListData,
-            getMonthData
+            getMonthData,
+            getDataCalendar
         };
     },
     methods: {
@@ -97,7 +101,8 @@ export default defineComponent({
 
             if (response.status == 200) {
                 this.modal2Visible = false;
-                this.getListData(this.$refs.data.date, dataiP);
+                await this.getDataCalendar();
+                await this.getListData(this.$refs.data.date, dataiP);
             }
         }
         
