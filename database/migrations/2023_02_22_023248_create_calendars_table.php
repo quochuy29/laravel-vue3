@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('calendars', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('date')->nullable();
+            $table->date('date')->nullable();
             $table->json('title', 250)->nullable();
             $table->timestamps();
         });
