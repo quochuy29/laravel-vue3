@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Calendar;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class TestController extends Controller
@@ -18,7 +19,7 @@ class TestController extends Controller
             "name"=> "xxx.png",
             "status"=> "done",
             "url"=> "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-           "thumbUrl"=>"https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+            "thumbUrl"=>"https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
         ];
 
         return json_encode($a);
@@ -33,47 +34,80 @@ class TestController extends Controller
     }
 
     public function add(Request $request) {
-        $calendar = Calendar::where('date', '=', $request->date)->first();
-
-        if ($calendar) {
-            $calendar->title = $this->buildDataTitleCalendar($request->title ?? [], $calendar->title);
-            $calendar->save();
-            return json_encode(['status' => 200]);
-        }
-
-        $model = new Calendar();
-        $model->date = $request->date;
-        $model->title = $this->buildDataTitleCalendar($request->title ?? []);
-        $model->save();
+        $data = $request->title;
+        $this->builDataCalendar($data);
+        $getAllDate = Calendar::pluck('title', 'date')->toArray();
+        $aryUpdate = [];
+        $aryInsert = [];
+        $this->buildDataUpdateInsert($aryUpdate, $aryInsert, $getAllDate, $data);
+        $this->insertDataCalendar($aryUpdate, $aryInsert);
 
         return json_encode(['status' => 200]);
     }
 
-    public function buildDataTitleCalendar($data = [], $dataDate = '[]')
+    public function buildDataUpdateInsert(&$update = [], &$insert = [], $dataAllDate = [], $data = [])
     {
-        if ($data == '') {
+        if (empty($dataAllDate)) {
+            return false;
+        }
+
+        $dataKey = array_column(array_values($data), 'date');
+
+        foreach (array_keys($dataAllDate) as $value) {
+            if (in_array($value, $dataKey)) {
+                $data[$value]['title'] = json_encode(array_merge(json_decode($dataAllDate[$value], true), json_decode($data[$value]['title'], true)));
+                $update[] = $data[$value];
+                unset($data[$value]);
+                continue;
+            }
+        }
+
+        $insert = array_merge($insert, array_values($data));
+    }
+
+    public function builDataCalendar(&$data = [])
+    {
+        if (empty($data)) {
             return $data;
         }
 
         $buildData = [];
+
         foreach ($data as $key => $value) {
-            if ($value['type'] == '') {
-                $value['type'] = '';
-                $data[$key] = $value;
+            if ($value['date'] == null || $value['date'] == '') {
+                continue;
             }
 
-            if ($value['content'] == '') {
-                $value['content'] = '';
-                $data[$key] = $value;
+            $date = Carbon::parse($value['date'])->format('Y-m-d');
+            unset($value['date']);
+            if(($index = array_search($date, array_column($buildData, 'date'))) !== false) {
+                $buildData[$date]['title'] .= ', ' . json_encode($value);
+                $buildData[$date]['date'] = $date;
+            } else { 
+                $buildData[$date]['date'] = $date;
+                $buildData[$date]['title'] = json_encode($value);
             }
         }
-        $dataNew = json_decode($dataDate, true);
 
-        if (!empty($dataNew)) {
-            $data = array_merge($data, $dataNew);
+        array_walk_recursive($buildData, function (&$v, $k) { 
+            if($k == 'title'){ 
+                $v = "[$v]"; 
+            } 
+        });
+
+        $data = $buildData;
+    }
+
+    public function insertDataCalendar($aryUpdate = [], $aryInsert = [])
+    {
+        if (empty($aryInsert) && empty($aryUpdate)) {
+            return false;
         }
 
-        $buildData = json_encode($data);
-        return $buildData;
+        $model = Calendar::insert($aryInsert);
+
+        foreach ($aryUpdate as $value) {
+            Calendar::where('date', '=', $value['date'])->update($value);
+        }
     }
 }

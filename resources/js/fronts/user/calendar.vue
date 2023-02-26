@@ -6,20 +6,13 @@
         @ok="add">
         <abcssss ref="data" :time="time" :key="modal2Visible"></abcssss>
     </a-modal>
-    <a-calendar v-model:value="value" @click="dua(value)" :key="modal2Visible">
+    <a-calendar v-model:value="value" @select="dua(value, $event)">
         <template #dateCellRender="{ current }">
           <ul class="events">
             <li v-for="item in getListData(current)" :key="item.content">
               <a-badge :status="item.type" :text="item.content" />
             </li>
           </ul>
-        </template>
-
-        <template #monthCellRender="{ current }">
-            <div v-if="getMonthData(current)" class="notes-month">
-                <section>{{ getMonthData(current) }}</section>
-                <span>Backlog number</span>
-            </div>
         </template>
     </a-calendar>
 </template>
@@ -40,7 +33,7 @@ export default defineComponent({
             time: null,
             moment: moment,
             modal2Visible: false,
-            title: []
+            title: [],
         }
     },
     setup() {
@@ -51,6 +44,7 @@ export default defineComponent({
             data.value = datas.data;
         };
         onMounted(async() => {
+            document.querySelector('.ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked)').remove();
             await getDataCalendar();
         });
 
@@ -69,21 +63,15 @@ export default defineComponent({
             return listData || [];
         };
 
-        const getMonthData = value => {
-            if (value.month() === 8) {
-                return 1394;
-            }
-        };
-
         return {
             value,
             getListData,
-            getMonthData,
             getDataCalendar
         };
     },
     methods: {
-        dua(vl) {
+        dua(vl, e) {
+            console.log(vl, e);
             if (vl == undefined) {
                 const today = new Date();
                 vl = moment(today).format('YYYY-MM-DD');
@@ -93,7 +81,6 @@ export default defineComponent({
         },
         async add() {
             const dataIp = {
-                date: this.$refs.data.date.format('YYYY-MM-DD'),
                 title: this.$refs.data.titles
             }
             const dataiP = JSON.parse(JSON.stringify(dataIp));

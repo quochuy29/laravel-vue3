@@ -1,7 +1,7 @@
 <template>
     <a-button @click="addTitle">+</a-button>
-    <a-date-picker v-model:value="date" style="margin-left:5px;" />
     <div v-for="(title, index) in titles" :maxid="index" class="list-schedule">
+        <br/><a-date-picker v-model:value="title.date" /><br/>
         <br/><a-input-group compact>
             <a-select v-model:value="title.type" style="width: 100px">
                 <a-select-option value="success">Success</a-select-option>
@@ -18,16 +18,13 @@
     import dayjs from 'dayjs';
     export default {
         props: {
-            time: {
-                type: String,
-                default: ''
-            }
+            time: [String, Object]
         },
         data() {
             return {
-                date: dayjs(this.time),
                 titles: [
                     {
+                        date: dayjs(this.time),
                         type: '', 
                         content: ''
                     }
@@ -36,14 +33,14 @@
         },
         methods: {
             addTitle() {
-                this.titles.push({type: '', content: ''});
+                this.titles.push({date: '', type: '', content: ''});
             },
             removeTitle(maxId) {
                 const elLength = document.querySelectorAll('.list-schedule').length;
                 if (elLength > 1) {
                     document.querySelector(`[maxid="${maxId}"]`).remove();
                 }
-            }
+            },
         },
     }
 </script>
