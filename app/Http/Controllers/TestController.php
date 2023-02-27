@@ -28,21 +28,23 @@ class TestController extends Controller
 
     public function calendar()
     {
-        $data = Calendar::get();
+        $datas = Calendar::pluck('title', 'date');
 
-        return json_encode($data);
+        return json_encode($datas);
     }
 
-    public function add(Request $request) {
+    public function add(Request $request) 
+    {
         $data = $request->title;
         $this->builDataCalendar($data);
-        $getAllDate = Calendar::pluck('title', 'date')->toArray();
         $aryUpdate = [];
+        $getAllDate = Calendar::pluck('title', 'date')->toArray();
         $aryInsert = [];
         $this->buildDataUpdateInsert($aryUpdate, $aryInsert, $getAllDate, $data);
         $this->insertDataCalendar($aryUpdate, $aryInsert);
-
+        
         return json_encode(['status' => 200]);
+
     }
 
     public function buildDataUpdateInsert(&$update = [], &$insert = [], $dataAllDate = [], $data = [])
@@ -55,7 +57,7 @@ class TestController extends Controller
 
         foreach (array_keys($dataAllDate) as $value) {
             if (in_array($value, $dataKey)) {
-                $data[$value]['title'] = json_encode(array_merge(json_decode($dataAllDate[$value], true), json_decode($data[$value]['title'], true)));
+                $data[$value]['title'] = json_encode(array_merge($dataAllDate[$value], json_decode($data[$value]['title'], true)));
                 $update[] = $data[$value];
                 unset($data[$value]);
                 continue;

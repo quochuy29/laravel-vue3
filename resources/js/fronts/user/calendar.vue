@@ -6,10 +6,10 @@
         @ok="add">
         <abcssss ref="data" :time="time" :key="modal2Visible"></abcssss>
     </a-modal>
-    <a-calendar v-model:value="value" @select="dua(value, $event)">
+    <a-calendar v-model:value="value" @select="dua(value)" :key="modal2Visible">
         <template #dateCellRender="{ current }">
           <ul class="events">
-            <li v-for="item in getListData(current)" :key="item.content">
+            <li v-for="item in getListData(current.format('YYYY-MM-DD').toString())" :key="item.content">
               <a-badge :status="item.type" :text="item.content" />
             </li>
           </ul>
@@ -48,18 +48,10 @@ export default defineComponent({
             await getDataCalendar();
         });
 
-        const getListData = (value, dataIp = {}) => {
+        const getListData = (value) => {
             let listData;
-            data.value.forEach((date) => {
-                if (value.format('YYYY-MM-DD') == date.date) {
-                    listData = JSON.parse(date.title);
-                    if (Object.keys(dataIp).length > 0) {
-                        dataIp.title.forEach((x) => {
-                            listData.unshift(x);
-                        })
-                    }
-                }
-            });
+            listData = data.value[value];
+            
             return listData || [];
         };
 
@@ -70,8 +62,7 @@ export default defineComponent({
         };
     },
     methods: {
-        dua(vl, e) {
-            console.log(vl, e);
+        dua(vl) {
             if (vl == undefined) {
                 const today = new Date();
                 vl = moment(today).format('YYYY-MM-DD');
@@ -89,7 +80,6 @@ export default defineComponent({
             if (response.status == 200) {
                 this.modal2Visible = false;
                 await this.getDataCalendar();
-                await this.getListData(this.$refs.data.date, dataiP);
             }
         }
         
