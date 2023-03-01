@@ -8,9 +8,10 @@
                 <a-select-option value="warning">Warning</a-select-option>
                 <a-select-option value="error">Error</a-select-option>
             </a-select>
-            <a-input v-model:value="title.content" style="width: 50%" />
+            <a-input v-model:value="title.content" style="width: 50%;height:32px;" />
             <a-button @click="removeTitle(index)">-</a-button>
         </a-input-group><br/>
+        <a-alert :id="`error_${index}`" class="off" message="Error" type="error" show-icon />
     </div>
 </template>
 
@@ -32,6 +33,29 @@
             }
         },
         methods: {
+            handleErrors(errors) {
+                if (errors === undefined) {
+                    return false;
+                }
+                let errs = JSON.parse(errors.title);
+                let classErr = [];
+                let classAllErr = [];
+                for (const err in errs) {
+                    classErr.push(err);
+                    document.querySelector(`#error_${err}`).classList.remove('off');
+                    document.querySelector(`#error_${err}`).childNodes[1].children[0].innerHTML = this.getMessage(Object.values(errs[err]));
+                }
+
+                document.querySelectorAll('.list-schedule').forEach(el => {
+                    classAllErr.push(el.attributes[0].value);
+                })
+                
+                let difference = classAllErr.filter(x => !classErr.includes(x));
+
+                for (const err of difference) {
+                    document.querySelector(`#error_${err}`).classList.add('off');
+                }
+            },
             addTitle() {
                 this.titles.push({date: '', type: '', content: ''});
             },
@@ -41,10 +65,21 @@
                     document.querySelector(`[maxid="${maxId}"]`).remove();
                 }
             },
+            getMessage(message) {
+                let c = '';
+
+                for (const b of message) {
+                    c += `${b} <br/> `;
+                }
+
+                return c.replace(/\<br\/>$/, '');
+            }
         },
     }
 </script>
 
-<style lang="scss" scoped>
-
+<style lang="css">
+.off {
+    display: none;
+}
 </style>

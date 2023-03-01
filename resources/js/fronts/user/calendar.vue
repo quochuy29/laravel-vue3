@@ -3,13 +3,13 @@
         v-model:visible="modal2Visible"
         title="Vertically centered modal dialog"
         centered
-        @ok="add">
+        @ok="createEvent">
         <abcssss ref="data" :time="time" :key="modal2Visible"></abcssss>
     </a-modal>
-    <a-calendar v-model:value="value" @select="dua(value)" :key="modal2Visible">
+    <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:90%">
         <template #dateCellRender="{ current }">
           <ul class="events">
-            <li v-for="item in getListData(current.format('YYYY-MM-DD').toString())" :key="item.content">
+            <li v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content">
               <a-badge :status="item.type" :text="item.content" />
             </li>
           </ul>
@@ -19,7 +19,7 @@
 
 <script>
 import abcssss from './input.vue';
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, onBeforeMount } from 'vue';
 import axios from 'axios';
 import moment from 'moment';
 
@@ -29,65 +29,73 @@ export default defineComponent({
     },
     data() {
         return {
-            data: null,
             time: null,
             moment: moment,
             modal2Visible: false,
-            title: [],
+            title: []
         }
     },
     setup() {
         const value = ref();
-        const data = ref([]);
-        const getDataCalendar = async() => {
-            const datas = await axios.get('api/calendar');
-            data.value = datas.data;
+        const monthData = ref({});
+        const getDataCalendar = async () => {
+            const res = await axios.get("api/calendar");
+            monthData.value = res.data;
         };
-        onMounted(async() => {
-            document.querySelector('.ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked)').remove();
+        
+        onBeforeMount(async() => {
             await getDataCalendar();
         });
-
-        const getListData = (value) => {
-            let listData;
-            listData = data.value[value];
-            
-            return listData || [];
-        };
+        
+        onMounted(() => {
+            document.querySelector('.ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked)').remove();
+        });
 
         return {
             value,
-            getListData,
-            getDataCalendar
+            getDataCalendar,
+            monthData
         };
     },
+    async serverPrefetch() {
+        await this.getDataCalendar();
+    },
     methods: {
-        dua(vl) {
-            if (vl == undefined) {
+        openCreateEvent(value) {
+            if (value == undefined) {
                 const today = new Date();
-                vl = moment(today).format('YYYY-MM-DD');
+                value = moment(today).format('YYYY-MM-DD');
             }
-            this.time = vl;
+            this.time = value;
             this.modal2Visible = true;
         },
-        async add() {
+        async createEvent() {
             const dataIp = {
                 title: this.$refs.data.titles
             }
             const dataiP = JSON.parse(JSON.stringify(dataIp));
-            const response = await axios.post('api/add', dataiP);
+            try {
+                const response = await axios.post('api/add', dataiP);
+                dataiP.title.forEach(el => {
+                    let date = moment(el.date).format('YYYY-MM-DD');
+                    if (this.monthData[date] === undefined) {
+                        this.monthData[date] = [];
+                    }
 
-            if (response.status == 200) {
+                    this.monthData[date] = [{ type: el.type, content: el.content }, ...this.monthData[date]]
+                    console.log(this.monthData[date]);
+                });
                 this.modal2Visible = false;
-                await this.getDataCalendar();
+            } catch (error) {
+                this.$refs.data.handleErrors(error.response.data.errors);
             }
-        }
+        },
         
     },
 });
 </script>
 
-<style scoped>
+<style>
 .events {
     list-style: none;
     margin: 0;
@@ -109,5 +117,25 @@ export default defineComponent({
 
 .notes-month section {
     font-size: 28px;
+}
+
+.ant-picker-calendar-date-content::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgb(255, 255, 255);
+	background-color: #F5F5F5;
+}
+
+.ant-picker-calendar-date-content::-webkit-scrollbar
+{
+    width: 10px;
+	background-color: #F5F5F5;
+}
+
+.ant-picker-calendar-date-content::-webkit-scrollbar-thumb
+{
+	background-color: rgb(119, 118, 119);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%,
+	                   color-stop(.5, rgba(119, 118, 119)),
+					   color-stop(.5, transparent), to(transparent));
 }
 </style>

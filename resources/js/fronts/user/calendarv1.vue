@@ -1,87 +1,93 @@
 <template>
-  <a-modal v-model:visible="visible" :title="modalText1" :confirm-loading="confirmLoading" @ok="handleOk(modalText1, content, type)">
-    <p>{{ modalText1 }}</p>
-    <p>{{ modalText2 }}</p>
-    <select name="memo[type]" :value="type">
-      <option value="error" selected>error</option>
-      <option value="warning">warning</option>
-      <option value="success">success</option>
-    </select>
-    <input type="text" name="memo[content]" :value="content" placeholder="new">
+  <a-modal
+    v-model:visible="showOvl"
+    :title="selectedDate"
+    :confirm-loading="confirmLoading"
+    @cancel="handleInput()"
+    @ok="handleOk(selectedDate)"
+  >
+    <a-select v-model:value="type" style="width: 100%;">
+      <a-select-option value="error" selected>error</a-select-option>
+      <a-select-option value="warning">warning</a-select-option>
+      <a-select-option value="success">success</a-select-option>
+    </a-select>
+    <a-input v-model:value="content" placeholder="new" />
   </a-modal>
-  <a-calendar v-model:value="value" @select="showModal(value)">
+  <a-calendar
+    v-model:value="value"
+    :key="reRenderCal"
+    :valueFormat="'YYYY-MM-DD'"
+    @select="dmHuy(value)"
+  >
     <template #dateCellRender="{ current }">
       <ul class="events" :class="current.format('YYYY-MM-DD').toString()">
-        <li v-for="item in data[current.format('YYYY-MM-DD').toString()]" :key="item.content">
+        <li v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.id">
           <a-badge :status="item.type" :text="item.content" />
         </li>
       </ul>
     </template>
-    <template #monthCellRender="{ current }">
-      <div v-if="getMonthData(current)" class="notes-month">
-        <section>{{ getMonthData(current) }}</section>
-        <span>Backlog number</span>
-      </div>
-    </template>
   </a-calendar>
 </template>
 <script>
-import { defineComponent, ref } from 'vue';
-export default defineComponent({
+import { defineComponent, ref, onMounted } from 'vue';
+export default {
   setup() {
-    const data = ref({
-      '2023-02-13': [
-        { type: 'error', content: 'test00' },
-        { type: 'warning', content: 'test01' },
-        { type: 'success', content: 'test02' },
-      ]
-    });
-    const getMonthData = value => {
-      if (value.month() === 8) {
-        return 1394;
-      }
+    const monthData = ref({});
+    const value = null;
+    const getDataCalendar = async () => {
+      const res = await axios.get("api/calendar");
+      monthData.value = res.data;
     };
-    const modalText1 = ref('Content of the modal');
-    const modalText2 = ref('Content of the modal');
-    const visible = ref(false);
-    const confirmLoading = ref(false);
-    const showModal = (value) => {
-      const date = value.format('YYYY-MM-DD').toString();
-      modalText1.value = date;
-      visible.value = true;
-    };
-    const handleOk = (date, content, type) => {
-      modalText2.value = "The modal will be closed after two seconds";
-      confirmLoading.value = true;
-      console.log(date, content, type)
-      setTimeout(() => {
-        if (
-          content !== '' && content !== undefined && 
-          type !== '' && type !== undefined && 
-          date !== '' && date !== undefined
-        ) {
-            data.date = [...data.date, {'type': type, 'content': content}]
-          }
-        visible.value = false;
-        confirmLoading.value = false;
-      }, 2000);
-    };
-    let content = ref()
-    let type = ref()
+    getDataCalendar()
     return {
-      data,
-      getMonthData,
-      showModal,
-      handleOk,
-      visible,
-      confirmLoading,
-      modalText1,
-      modalText2,
-      content,
-      type
+      monthData,
+      value,
     };
   },
-});
+  data() {
+    return {
+      showOvl: false,
+      confirmLoading: false,
+      selectedDate: "",
+      type: "",
+      content: "",
+      reRenderCal: false
+    };
+  },
+  async mounted() {
+  },
+  methods: {
+    dmHuy: function(v) {
+      if (v === undefined) {
+        v = Date.now()
+          .format("YYYY-MM-DD")
+          .toString();
+      }
+      this.selectedDate = v;
+      this.showOvl = true;
+    },
+    handleOk: function(date) {
+      if (this.type === "" || this.content === "") {
+        alert("empty field(s)");
+        return;
+      }
+
+      if (this.monthData[date] === undefined) {
+        this.monthData[date] = [];
+      }
+      this.monthData[date] = [
+        { type: this.type, content: this.content },
+        ...this.monthData[date]
+      ];
+      this.showOvl = false;
+      this.reRenderCal = !this.reRenderCal;
+      this.type = this.content = "";
+    },
+    handleInput: function() {
+      this.type = this.content = "";
+    }
+  }
+};
 </script>
 <style scoped>
 .events {
@@ -95,12 +101,5 @@ export default defineComponent({
   width: 100%;
   text-overflow: ellipsis;
   font-size: 12px;
-}
-.notes-month {
-  text-align: center;
-  font-size: 28px;
-}
-.notes-month section {
-  font-size: 28px;
 }
 </style>

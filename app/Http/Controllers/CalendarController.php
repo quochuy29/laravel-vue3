@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CalendarRequest;
 use App\Models\Calendar;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class TestController extends Controller
+class CalendarController extends Controller
 {
     public function abc()
     {
@@ -28,13 +29,14 @@ class TestController extends Controller
 
     public function calendar()
     {
-        $datas = Calendar::pluck('title', 'date');
+        $datas = Calendar::pluck('title', 'date')->toArray();
 
-        return json_encode($datas);
+        return $datas;
     }
 
-    public function add(Request $request) 
+    public function add(CalendarRequest $request) 
     {
+        dd(2);
         $data = $request->title;
         $this->builDataCalendar($data);
         $aryUpdate = [];
