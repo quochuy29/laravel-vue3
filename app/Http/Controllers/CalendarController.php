@@ -36,7 +36,6 @@ class CalendarController extends Controller
 
     public function add(CalendarRequest $request) 
     {
-        dd(2);
         $data = $request->title;
         $this->builDataCalendar($data);
         $aryUpdate = [];

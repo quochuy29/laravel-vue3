@@ -63,8 +63,7 @@ export default defineComponent({
     methods: {
         openCreateEvent(value) {
             if (value == undefined) {
-                const today = new Date();
-                value = moment(today).format('YYYY-MM-DD');
+                value = moment(Date.now()).format('YYYY-MM-DD 12:00:00');
             }
             this.time = value;
             this.modal2Visible = true;
@@ -74,6 +73,7 @@ export default defineComponent({
                 title: this.$refs.data.titles
             }
             const dataiP = JSON.parse(JSON.stringify(dataIp));
+            console.log(this.$refs.data.titles, dataiP.title);
             try {
                 const response = await axios.post('api/add', dataiP);
                 dataiP.title.forEach(el => {
