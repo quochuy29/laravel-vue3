@@ -58,7 +58,8 @@ class CalendarController extends Controller
 
         foreach (array_keys($dataAllDate) as $value) {
             if (in_array($value, $dataKey)) {
-                $data[$value]['title'] = json_encode(array_merge($dataAllDate[$value], json_decode($data[$value]['title'], true)));
+                $title = array_reverse(array_merge($dataAllDate[$value], json_decode($data[$value]['title'], true)));
+                $data[$value]['title'] = json_encode($title);
                 $update[] = $data[$value];
                 unset($data[$value]);
                 continue;
@@ -106,11 +107,8 @@ class CalendarController extends Controller
         if (empty($aryInsert) && empty($aryUpdate)) {
             return false;
         }
+        $aryData = array_merge($aryUpdate, $aryInsert);
 
-        $model = Calendar::insert($aryInsert);
-
-        foreach ($aryUpdate as $value) {
-            Calendar::where('date', '=', $value['date'])->update($value);
-        }
+        Calendar::upsert($aryData, ['date'], ['title']);
     }
 }

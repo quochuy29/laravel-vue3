@@ -43,6 +43,10 @@ class FormatTitleCalendar implements ValidationRule
             if (trim((string)$val['content'], '') == '') {
                 $message[$key][] = "Content empty value in item $key";
             }
+
+            if ($val['date'] == '') {
+                $message[$key][] = "Date empty value in item $key";
+            }
         }
 
         return $message;

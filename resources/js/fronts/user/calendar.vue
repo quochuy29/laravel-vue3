@@ -4,7 +4,7 @@
         title="Vertically centered modal dialog"
         centered
         @ok="createEvent">
-        <abcssss ref="data" :time="time" :key="modal2Visible"></abcssss>
+        <abcssss ref="data" :dataId="dataId" :time="time" :key="modal2Visible"></abcssss>
     </a-modal>
     <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:90%">
         <template #dateCellRender="{ current }">
@@ -22,6 +22,8 @@ import abcssss from './input.vue';
 import { defineComponent, ref, onMounted, onBeforeMount } from 'vue';
 import axios from 'axios';
 import moment from 'moment';
+import _ from 'lodash';
+import dayjs from 'dayjs';
 
 export default defineComponent({
     components: {
@@ -32,7 +34,8 @@ export default defineComponent({
             time: null,
             moment: moment,
             modal2Visible: false,
-            title: []
+            title: [],
+            dataId: null
         }
     },
     setup() {
@@ -62,18 +65,25 @@ export default defineComponent({
     },
     methods: {
         openCreateEvent(value) {
-            if (value == undefined) {
-                value = moment(Date.now()).format('YYYY-MM-DD 12:00:00');
+            const year =  document.querySelector('.ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked)');
+            if (year !== null) {
+                year.remove();
+            }
+
+            value = (value === undefined) ? moment(Date.now()).format('YYYY-MM-DD 12:00:00') : value.format('YYYY-MM-DD');
+
+            if (this.monthData[value] !== undefined) {
+                this.dataId = _.cloneDeep(this.monthData[moment(value).format('YYYY-MM-DD')]).map(v => ({...v, 'date': dayjs(value)}));
             }
             this.time = value;
             this.modal2Visible = true;
         },
         async createEvent() {
             const dataIp = {
-                title: this.$refs.data.titles
+                action: this.$refs.data.dataId == null ? 'add' : 'update',
+                title: this.$refs.data.dataId == null ? this.$refs.data.dataId : this.$refs.data.dataId
             }
             const dataiP = JSON.parse(JSON.stringify(dataIp));
-            console.log(this.$refs.data.titles, dataiP.title);
             try {
                 const response = await axios.post('api/add', dataiP);
                 dataiP.title.forEach(el => {
