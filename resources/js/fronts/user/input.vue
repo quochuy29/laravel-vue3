@@ -13,7 +13,7 @@
         </a-input-group><br/>
         <a-alert :id="`error_${index}`" class="off" message="Error" type="error" show-icon />
     </div>
-    <div v-else v-for="(title, index) in dataId" :maxid="index" class="list-schedule">
+    <div v-else v-for="(title, index) in data" :maxid="index" class="list-schedule">
         <br/><a-date-picker v-model:value="title.date" /><br/>
         <br/><a-input-group compact>
             <a-select v-model:value="title.type" style="width: 100px">
@@ -30,6 +30,7 @@
 
 <script>
     import dayjs from 'dayjs';
+    import _ from 'lodash';
     export default {
         props: {
             time: [String, Object],
@@ -43,7 +44,8 @@
                         type: '', 
                         content: ''
                     }
-                ]
+                ],
+                data: this.dataId
             }
         },
         methods: {
@@ -71,8 +73,8 @@
                 }
             },
             addTitle() {
-                if (this.dataId !== null) {
-                    this.dataId.push({date: '', type: '', content: ''});
+                if (this.data !== null) {
+                    this.data.push({date: '', type: '', content: ''});
                     return true;
                 }
                 this.titles.push({date: '', type: '', content: ''});
@@ -80,8 +82,8 @@
             removeTitle(maxId) {
                 const elLength = document.querySelectorAll('.list-schedule').length;
                 if (elLength > 1) {
-                    if (this.dataId !== null) {
-                        this.dataId = this.dataId.filter((item, key) => key !== maxId)
+                    if (this.data !== null) {
+                        this.data = this.data.filter((item, key) => key !== maxId)
                         return true;
                     }
                     this.titles = this.titles.filter((item, key) => key !== maxId)

@@ -41,14 +41,14 @@ class CalendarController extends Controller
         $aryUpdate = [];
         $getAllDate = Calendar::pluck('title', 'date')->toArray();
         $aryInsert = [];
-        $this->buildDataUpdateInsert($aryUpdate, $aryInsert, $getAllDate, $data);
+        $this->buildDataUpdateInsert($aryUpdate, $aryInsert, $getAllDate, $data, $request->action);
         $this->insertDataCalendar($aryUpdate, $aryInsert);
         
         return json_encode(['status' => 200]);
 
     }
 
-    public function buildDataUpdateInsert(&$update = [], &$insert = [], $dataAllDate = [], $data = [])
+    public function buildDataUpdateInsert(&$update = [], &$insert = [], $dataAllDate = [], $data = [], $action = 'add')
     {
         if (empty($dataAllDate)) {
             return false;
@@ -59,6 +59,9 @@ class CalendarController extends Controller
         foreach (array_keys($dataAllDate) as $value) {
             if (in_array($value, $dataKey)) {
                 $title = array_reverse(array_merge($dataAllDate[$value], json_decode($data[$value]['title'], true)));
+                if ($action == 'update') {
+                    $title = array_reverse(json_decode($data[$value]['title'], true));
+                }
                 $data[$value]['title'] = json_encode($title);
                 $update[] = $data[$value];
                 unset($data[$value]);
@@ -82,14 +85,13 @@ class CalendarController extends Controller
                 continue;
             }
 
-            $date = Carbon::parse($value['date'])->format('Y-m-d');
-            unset($value['date']);
-            if(($index = array_search($date, array_column($buildData, 'date'))) !== false) {
-                $buildData[$date]['title'] .= ', ' . json_encode($value);
-                $buildData[$date]['date'] = $date;
+            $value['date'] = Carbon::parse($value['date'])->format('Y-m-d');
+            if(($index = array_search($value['date'], array_column($buildData, 'date'))) !== false) {
+                $buildData[$value['date']]['title'] .= ', ' . json_encode($value);
+                $buildData[$value['date']]['date'] = $value['date'];
             } else { 
-                $buildData[$date]['date'] = $date;
-                $buildData[$date]['title'] = json_encode($value);
+                $buildData[$value['date']]['date'] = $value['date'];
+                $buildData[$value['date']]['title'] = json_encode($value);
             }
         }
 

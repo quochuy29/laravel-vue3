@@ -4,7 +4,7 @@
         title="Vertically centered modal dialog"
         centered
         @ok="createEvent">
-        <abcssss ref="data" :dataId="dataId" :time="time" :key="modal2Visible"></abcssss>
+        <abcssss ref="data" :dataId.sync="dataId" :time="time" :key="modal2Visible"></abcssss>
     </a-modal>
     <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:90%">
         <template #dateCellRender="{ current }">
@@ -66,23 +66,37 @@ export default defineComponent({
     methods: {
         openCreateEvent(value) {
             const year =  document.querySelector('.ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked)');
+            let convertDate = '';
             if (year !== null) {
                 year.remove();
             }
 
-            value = (value === undefined) ? moment(Date.now()).format('YYYY-MM-DD 12:00:00') : value.format('YYYY-MM-DD');
+            if (value === undefined) {
+                value = moment(Date.now()).format('YYYY-MM-DD 12:00:00');
+                convertDate = moment(Date.now()).format('YYYY-MM-DD');
+            } else {
+                convertDate = value.format('YYYY-MM-DD');
+            }
 
-            if (this.monthData[value] !== undefined) {
-                this.dataId = _.cloneDeep(this.monthData[moment(value).format('YYYY-MM-DD')]).map(v => ({...v, 'date': dayjs(value)}));
+            if (this.monthData[convertDate] !== undefined) {
+                this.dataId = _.cloneDeep(this.monthData[convertDate]).map(v => ({...v, 'date': dayjs(v.date)}));
             }
             this.time = value;
             this.modal2Visible = true;
         },
         async createEvent() {
+            let title = null;
+            if (this.$refs.data.dataId == null) {
+                title = this.$refs.data.titles.map(v => ({...v, 'date': v.date.format('YYYY-MM-DD')}));
+            } else {
+                title = this.$refs.data.data.map(v => ({...v, 'date': v.date.format('YYYY-MM-DD')}));
+            }
+            
             const dataIp = {
                 action: this.$refs.data.dataId == null ? 'add' : 'update',
-                title: this.$refs.data.dataId == null ? this.$refs.data.dataId : this.$refs.data.dataId
+                title: title
             }
+
             const dataiP = JSON.parse(JSON.stringify(dataIp));
             try {
                 const response = await axios.post('api/add', dataiP);
@@ -93,7 +107,6 @@ export default defineComponent({
                     }
 
                     this.monthData[date] = [{ type: el.type, content: el.content }, ...this.monthData[date]]
-                    console.log(this.monthData[date]);
                 });
                 this.modal2Visible = false;
             } catch (error) {
