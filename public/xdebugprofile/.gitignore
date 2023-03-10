@@ -1,0 +1,7 @@
+###################
+# use for development env only don't care about this folder on prod env
+# Ignore all files in this dir...
+*
+
+# ... except for this one.
+!.gitignore

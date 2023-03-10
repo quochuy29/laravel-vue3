@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\TestController;
+use App\Http\Controllers\EventController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,12 +19,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('test')
-->controller(TestController::class)
-->group(function () {
-    Route::get('abc', 'abc');
-});
-
-Route::post('upload', [TestController::class, 'upload']);
-Route::get('calendar', [TestController::class, 'calendar']);
-Route::post('add', [TestController::class, 'add']);
+Route::get('calendar', [EventController::class, 'calendar']);
+Route::post('save-event', [EventController::class, 'saveEvent']);
