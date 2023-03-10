@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('events', function (Blueprint $table) {
-            $table->unique('date');
+        Schema::create('approve_status', function (Blueprint $table) {
+            $table->id();
+            $table->string('approve_status_name')->unique()->index();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('events', function (Blueprint $table) {
-            $table->dropUnique('date');
-        });
+        Schema::dropIfExists('approve_status');
     }
 };

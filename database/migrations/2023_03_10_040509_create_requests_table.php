@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('events', function (Blueprint $table) {
-            $table->unique('date');
+        Schema::create('requests', function (Blueprint $table) {
+            $table->id();
+            $table->string('request_code', 200)->unique()->index();
+            $table->string('request_name')->index();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('events', function (Blueprint $table) {
-            $table->dropUnique('date');
-        });
+        Schema::dropIfExists('requests');
     }
 };

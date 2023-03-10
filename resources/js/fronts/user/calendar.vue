@@ -1,10 +1,29 @@
 <template>
     <a-modal
+        v-model:visible="visChooseAction"
+        title="Bố mày là admin"
+        centered
+        @ok="createEvent">
+        <div class="choose-act">
+            <a-button style="margin-right: 10px;" @click="createEventAct" type="primary">Event</a-button>
+            <a-button @click="createRequestAct" type="primary" danger>Request</a-button>
+        </div>
+    </a-modal>
+    <a-modal
+        v-model:visible="visRequest"
+        title="Vertically centered modal dialog"
+        centered
+        width="1000px"
+        height="600px"
+        @ok="createRequest">
+        <request ref="data" :time="time" :key="visRequest"></request>
+    </a-modal>
+    <a-modal
         v-model:visible="modal2Visible"
         title="Vertically centered modal dialog"
         centered
         @ok="createEvent">
-        <abcssss ref="data" :dataId.sync="dataId" :time="time" :key="modal2Visible"></abcssss>
+        <event ref="data" :dataId.sync="dataId" :time="time" :key="modal2Visible"></event>
     </a-modal>
     <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:90%">
         <template #dateCellRender="{ current }">
@@ -18,7 +37,8 @@
 </template>
 
 <script>
-import abcssss from './input.vue';
+import event from './event.vue';
+import request from './request.vue';
 import { defineComponent, ref, onMounted, onBeforeMount } from 'vue';
 import axios from 'axios';
 import moment from 'moment';
@@ -27,7 +47,8 @@ import dayjs from 'dayjs';
 
 export default defineComponent({
     components: {
-        abcssss
+        event,
+        request
     },
     data() {
         return {
@@ -35,7 +56,9 @@ export default defineComponent({
             moment: moment,
             modal2Visible: false,
             title: [],
-            dataId: null
+            dataId: null,
+            visRequest: false,
+            visChooseAction: false
         }
     },
     setup() {
@@ -64,6 +87,16 @@ export default defineComponent({
         await this.getDataCalendar();
     },
     methods: {
+        createEventAct () {
+            console.log(this.time);
+            this.visRequest = false;
+            this.modal2Visible = true;
+        },
+        createRequestAct () {
+            console.log(this.time);
+            this.modal2Visible = false;
+            this.visRequest = true;
+        },
         openCreateEvent(value) {
             const year =  document.querySelector('.ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked)');
             this.dataId = null;
@@ -84,7 +117,7 @@ export default defineComponent({
                 this.dataId = _.cloneDeep(this.monthData[convertDate]).map(v => ({...v, 'date': dayjs(v.date)}));
             }
             this.time = value;
-            this.modal2Visible = true;
+            this.visChooseAction = true;
         },
         handleData() {
             let title = this.$refs.data.titles;
@@ -129,7 +162,9 @@ export default defineComponent({
                 this.$refs.data.handleErrors(error.response.data.errors);
             }
         },
-        
+        createRequest() {
+
+        }
     },
 });
 </script>
@@ -176,6 +211,11 @@ export default defineComponent({
 	background-image: -webkit-gradient(linear, 0 0, 0 100%,
 	                   color-stop(.5, rgba(119, 118, 119)),
 					   color-stop(.5, transparent), to(transparent));
+}
+
+.choose-act {
+    display: flex;
+    justify-content: center;
 }
 
 </style>
