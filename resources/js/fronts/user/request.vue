@@ -30,6 +30,24 @@
     }
 </script>
 
-<style lang="scss" scoped>
+<style lang="css">
+.ant-picker-time-panel-column::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgb(255, 255, 255);
+	background-color: #F5F5F5;
+}
 
+.ant-picker-time-panel-column::-webkit-scrollbar
+{
+    width: 10px;
+	background-color: #F5F5F5;
+}
+
+.ant-picker-time-panel-column::-webkit-scrollbar-thumb
+{
+	background-color: rgb(119, 118, 119);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%,
+	                   color-stop(.5, rgba(119, 118, 119)),
+					   color-stop(.5, transparent), to(transparent));
+}
 </style>
