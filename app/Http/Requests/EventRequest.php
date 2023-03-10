@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\Calendar\FormatTitleCalendar;
+use App\Rules\Event\FormatTitleEvent;
 use Illuminate\Foundation\Http\FormRequest;
-class CalendarRequest extends FormRequest
+class EventRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,7 @@ class CalendarRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => [new FormatTitleCalendar($this->title)]
+            'title' => [new FormatTitleEvent($this->title)]
         ];
     }
 }

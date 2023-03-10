@@ -8,11 +8,11 @@
     </a-modal>
     <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:90%">
         <template #dateCellRender="{ current }">
-          <ul class="events">
-            <li v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content">
-              <a-badge :status="item.type" :text="item.content" />
-            </li>
-          </ul>
+            <ul class="events">
+                <li v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content" :title="item.content">
+                    <a-badge :status="item.type" :text="item.content" />
+                </li>
+            </ul>
         </template>
     </a-calendar>
 </template>
@@ -66,6 +66,7 @@ export default defineComponent({
     methods: {
         openCreateEvent(value) {
             const year =  document.querySelector('.ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked)');
+            this.dataId = null;
             let convertDate = '';
             if (year !== null) {
                 year.remove();
@@ -78,36 +79,51 @@ export default defineComponent({
                 convertDate = value.format('YYYY-MM-DD');
             }
 
-            if (this.monthData[convertDate] !== undefined) {
+
+            if (this.monthData[convertDate] !== undefined && this.monthData[convertDate].length > 0) {
                 this.dataId = _.cloneDeep(this.monthData[convertDate]).map(v => ({...v, 'date': dayjs(v.date)}));
             }
             this.time = value;
             this.modal2Visible = true;
         },
+        handleData() {
+            let title = this.$refs.data.titles;
+            if (this.$refs.data.dataId !== null) {
+                title = this.$refs.data.data;
+            }
+
+            return title.map(v => ({...v, 'date': v.date !== '' ? v.date.format('YYYY-MM-DD') : ''}));
+        },
         async createEvent() {
-            let title = null;
-            if (this.$refs.data.dataId == null) {
-                title = this.$refs.data.titles.map(v => ({...v, 'date': v.date.format('YYYY-MM-DD')}));
-            } else {
-                title = this.$refs.data.data.map(v => ({...v, 'date': v.date.format('YYYY-MM-DD')}));
-            }
-            
             const dataIp = {
-                action: this.$refs.data.dataId == null ? 'add' : 'update',
-                title: title
+                timeMain: this.$refs.data.timeMain,
+                title: this.handleData()
             }
 
-            const dataiP = JSON.parse(JSON.stringify(dataIp));
             try {
-                const response = await axios.post('api/add', dataiP);
-                dataiP.title.forEach(el => {
-                    let date = moment(el.date).format('YYYY-MM-DD');
-                    if (this.monthData[date] === undefined) {
-                        this.monthData[date] = [];
-                    }
+                const response = await axios.post('api/save-event', dataIp);
 
-                    this.monthData[date] = [{ type: el.type, content: el.content }, ...this.monthData[date]]
-                });
+                if (response.data.update.length > 0) {
+                    response.data.update.forEach(el => {
+                        let date = moment(el.date).format('YYYY-MM-DD');
+                        if (this.monthData[date] === undefined) {
+                            this.monthData[date] = [];
+                        }
+
+                        this.monthData[date] = JSON.parse(el.title);
+                    })
+                }
+
+                if (response.data.insert.length > 0) {
+                    response.data.insert.forEach(el => {
+                        let date = moment(el.date).format('YYYY-MM-DD');
+                        if (this.monthData[date] === undefined) {
+                            this.monthData[date] = [];
+                        }
+
+                        this.monthData[date] = [{ type: el.type, content: el.content }, ...this.monthData[date]]
+                    });
+                }
                 this.modal2Visible = false;
             } catch (error) {
                 this.$refs.data.handleErrors(error.response.data.errors);
@@ -161,4 +177,5 @@ export default defineComponent({
 	                   color-stop(.5, rgba(119, 118, 119)),
 					   color-stop(.5, transparent), to(transparent));
 }
+
 </style>

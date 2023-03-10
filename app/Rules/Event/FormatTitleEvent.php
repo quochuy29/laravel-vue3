@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Rules\Calendar;
+namespace App\Rules\Event;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class FormatTitleCalendar implements ValidationRule
+class FormatTitleEvent implements ValidationRule
 {
     /**
      * Indicates whether the rule should be implicit.
@@ -37,15 +37,15 @@ class FormatTitleCalendar implements ValidationRule
 
         foreach ($value as $key => $val) {
             if (trim((string)$val['type'], '') == '') {
-                $message[$key][] = "Type empty value in item $key";
+                $message[$key][] = "Type empty value in item";
             }
 
             if (trim((string)$val['content'], '') == '') {
-                $message[$key][] = "Content empty value in item $key";
+                $message[$key][] = "Content empty value in item";
             }
 
             if ($val['date'] == '') {
-                $message[$key][] = "Date empty value in item $key";
+                $message[$key][] = "Date empty value in item";
             }
         }
 

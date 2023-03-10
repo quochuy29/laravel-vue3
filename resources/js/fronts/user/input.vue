@@ -38,12 +38,13 @@
         },
         data() {
             return {
+                timeMain: dayjs(this.time).format('YYYY-MM-DD'),
                 titles: [
                     {
                         date: dayjs(this.time),
                         type: '', 
                         content: ''
-                    }
+                    },
                 ],
                 data: this.dataId
             }
