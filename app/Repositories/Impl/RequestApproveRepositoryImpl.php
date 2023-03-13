@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Impl;
 
+use App\Models\ApproveRequest;
 use App\Models\Event;
 use App\Repositories\Impl\BaseRepositoryImpl;
 use App\Repositories\RequestApproveRepository;
@@ -23,9 +24,9 @@ class RequestApproveRepositoryImpl extends BaseRepositoryImpl implements Request
         return Event::class;
     }
 
-    public function listEvent($request)
+    public function listApprovers($request)
     {
-        $datas = Event::pluck('title', 'date')->toArray();
+        $datas = ApproveRequest::get();
 
         return $datas;
     }

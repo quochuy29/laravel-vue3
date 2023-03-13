@@ -16,7 +16,7 @@ interface RequestApproveRepository
      **/
     public function model();
 
-    public function listEvent($request);
+    public function listApprovers($request);
 
     public function upsert(array $value = [], array $condition, array $column);
 

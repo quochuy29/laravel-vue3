@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\RequestApproveController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +22,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('calendar', [EventController::class, 'calendar']);
 Route::post('save-event', [EventController::class, 'saveEvent']);
+Route::get('approver', [RequestApproveController::class, 'listApprovers']);

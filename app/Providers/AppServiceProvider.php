@@ -13,6 +13,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind("App\Repositories\BaseRepository", "App\Repositories\Impl\BaseRepositoryImpl");
         $this->app->bind("App\Repositories\EventRepository", "App\Repositories\Impl\EventRepositoryImpl");
+        $this->app->bind("App\Repositories\RequestApproveRepository", "App\Repositories\Impl\RequestApproveRepositoryImpl");
     }
 
     /**

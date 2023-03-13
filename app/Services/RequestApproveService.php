@@ -22,8 +22,8 @@ class RequestApproveService extends BaseService
         return RequestApproveRepository::class;
     }
 
-    public function listEvent($request)
+    public function listApprovers($request)
     {
-        return $this->_repository->listEvent($request);
+        return $this->_repository->listApprovers($request);
     }
 }
