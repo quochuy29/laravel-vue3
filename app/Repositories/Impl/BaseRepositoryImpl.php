@@ -240,6 +240,7 @@ abstract class BaseRepositoryImpl implements BaseRepository
      */
     public function findOneByColumn($column, $value)
     {
+        $this->model->firstWhere($column, $value);
         return $this->model->firstWhere($column, $value);
     }
 

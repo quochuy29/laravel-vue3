@@ -14,18 +14,15 @@ return new class extends Migration
         Schema::create('calendars', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique()->index();
+            $table->string('user_code')->index();
+            $table->string('user_name')->index();
             $table->date('date');
-            $table->time('start_time', 1);
-            $table->time('end_time', 1);
-            $table->string('duration', 200);
-            $table->string('request_type_code', 200)->index();
-            $table->string('request_type_name', 200)->index();
-            $table->string('reason', 200);
-            $table->string('user_create_name')->index();
-            $table->string('user_create_code')->index();
-            $table->string('user_approve_name')->index();
-            $table->string('user_approve_code')->index();
+            $table->time('checkin', 0);
+            $table->time('checkout', 0);
+            $table->string('unpaid_leave');
+            $table->string('paid_leave');
             $table->string('status_name');
+            $table->string('request_code')->unique()->index();
             $table->timestamps();
         });
     }

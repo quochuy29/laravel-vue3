@@ -2,10 +2,9 @@
 
 namespace App\Repositories\Impl;
 
-use App\Models\Calendar;
 use App\Models\Event;
 use App\Repositories\Impl\BaseRepositoryImpl;
-use App\Repositories\CalendarRepository;
+use App\Repositories\RequestRepository;
 
 /**
  * Class UserRepository
@@ -14,21 +13,13 @@ use App\Repositories\CalendarRepository;
  * @author TIMESHEET
  */
 
-class CalendarRepositoryImpl extends BaseRepositoryImpl implements CalendarRepository
+class RequestRepositoryImpl extends BaseRepositoryImpl implements RequestRepository
 {
     /**
      * Configure the Model
      **/
     public function model()
     {
-        return Calendar::class;
+        return Event::class;
     }
-
-    public function listEvent($request)
-    {
-        $datas = Event::pluck('title', 'date')->toArray();
-
-        return $datas;
-    }
-
 }

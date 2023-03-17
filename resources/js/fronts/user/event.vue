@@ -1,19 +1,6 @@
 <template>
     <a-button @click="addTitle">+</a-button>
-    <div v-if="dataId == null" v-for="(title, index) in titles" :maxid="index" class="list-schedule">
-        <br/><a-date-picker v-model:value="title.date" /><br/>
-        <br/><a-input-group compact>
-            <a-select v-model:value="title.type" style="width: 100px">
-                <a-select-option value="success">Success</a-select-option>
-                <a-select-option value="warning">Warning</a-select-option>
-                <a-select-option value="error">Error</a-select-option>
-            </a-select>
-            <a-input v-model:value="title.content" style="width: 50%;height:32px;" />
-            <a-button @click="removeTitle(index)">-</a-button>
-        </a-input-group><br/>
-        <a-alert :id="`error_${index}`" class="off" message="Error" type="error" show-icon />
-    </div>
-    <div v-else v-for="(title, index) in data" :maxid="index" class="list-schedule">
+    <div v-for="(title, index) in data ?? titles" :maxid="index" class="list-schedule">
         <br/><a-date-picker v-model:value="title.date" /><br/>
         <br/><a-input-group compact>
             <a-select v-model:value="title.type" style="width: 100px">

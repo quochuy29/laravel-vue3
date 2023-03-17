@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Calendar extends Model
 {
     use HasFactory;
+
+    protected $casts = [
+        'checkin' => 'datetime:H:i',
+        'checkout' => 'datetime:H:i'
+    ];
 }

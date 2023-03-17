@@ -1,39 +1,43 @@
 <template>
-    <a-modal
-        v-model:visible="visChooseAction"
-        title="Bố mày là admin"
-        centered
-        @ok="createEvent">
-        <div class="choose-act">
-            <a-button style="margin-right: 10px;" @click="createEventAct" type="primary">Event</a-button>
-            <a-button @click="createRequestAct" type="primary" danger>Request</a-button>
-        </div>
-    </a-modal>
-    <a-modal
-        v-model:visible="visRequest"
-        title="Vertically centered modal dialog"
-        centered
-        width="1000px"
-        height="600px"
-        @ok="createRequest">
-        <request ref="data" :time="time" :key="visRequest"></request>
-    </a-modal>
-    <a-modal
-        v-model:visible="modal2Visible"
-        title="Vertically centered modal dialog"
-        centered
-        @ok="createEvent">
-        <event ref="data" :dataId.sync="dataId" :time="time" :key="modal2Visible"></event>
-    </a-modal>
-    <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:90%">
-        <template #dateCellRender="{ current }">
-            <ul class="events">
-                <li v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content" :title="item.content">
-                    <a-badge :status="item.type" :text="item.content" />
-                </li>
-            </ul>
-        </template>
-    </a-calendar>
+    <a-spin :spinning="loadData">
+        <a-modal
+            v-model:visible="visChooseAction"
+            title="Bố mày là admin"
+            centered
+            @ok="createEvent">
+            <div class="choose-act">
+                <a-button style="margin-right: 10px;" @click="createEventAct" type="primary">Event</a-button>
+                <a-button @click="createRequestAct" type="primary" danger>Request</a-button>
+            </div>
+        </a-modal>
+        <a-modal
+            v-model:visible="visRequest"
+            title="Vertically centered modal dialog"
+            centered
+            width="1000px"
+            height="600px"
+            @ok="createRequest">
+            <request ref="dataRq" :time="time" :key="visRequest"></request>
+        </a-modal>
+        <a-modal
+            v-model:visible="modal2Visible"
+            title="Vertically centered modal dialog"
+            centered
+            @ok="createEvent">
+            <a-spin :spinning="dataAccess">
+                <event ref="data" :dataId.sync="dataId" :time="time" :key="modal2Visible"></event>
+            </a-spin>
+        </a-modal>
+        <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:90%">
+            <template #dateCellRender="{ current }">
+                <ul class="events">
+                    <li v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content" :title="item.content">
+                        <a-badge :status="item.type" :text="item.content" />
+                    </li>
+                </ul>
+            </template>
+        </a-calendar>
+    </a-spin>
 </template>
 
 <script>
@@ -58,12 +62,14 @@ export default defineComponent({
             title: [],
             dataId: null,
             visRequest: false,
-            visChooseAction: false
+            visChooseAction: false,
         }
     },
     setup() {
         const value = ref();
         const monthData = ref({});
+        const loadData = ref(true);
+        const dataAccess = ref(false);
         const getDataCalendar = async () => {
             const res = await axios.get("api/calendar");
             monthData.value = res.data;
@@ -71,6 +77,7 @@ export default defineComponent({
         
         onBeforeMount(async() => {
             await getDataCalendar();
+            loadData.value = !loadData.value;
         });
         
         onMounted(() => {
@@ -80,7 +87,9 @@ export default defineComponent({
         return {
             value,
             getDataCalendar,
-            monthData
+            monthData,
+            loadData,
+            dataAccess
         };
     },
     async serverPrefetch() {
@@ -88,12 +97,10 @@ export default defineComponent({
     },
     methods: {
         createEventAct () {
-            console.log(this.time);
             this.visRequest = false;
             this.modal2Visible = true;
         },
         createRequestAct () {
-            console.log(this.time);
             this.modal2Visible = false;
             this.visRequest = true;
         },
@@ -128,6 +135,7 @@ export default defineComponent({
             return title.map(v => ({...v, 'date': v.date !== '' ? v.date.format('YYYY-MM-DD') : ''}));
         },
         async createEvent() {
+            this.dataAccess = true;
             const dataIp = {
                 timeMain: this.$refs.data.timeMain,
                 title: this.handleData()
@@ -135,7 +143,6 @@ export default defineComponent({
 
             try {
                 const response = await axios.post('api/save-event', dataIp);
-
                 if (response.data.update.length > 0) {
                     response.data.update.forEach(el => {
                         let date = moment(el.date).format('YYYY-MM-DD');
@@ -158,18 +165,24 @@ export default defineComponent({
                     });
                 }
                 this.modal2Visible = false;
+                this.dataAccess = false;
             } catch (error) {
                 this.$refs.data.handleErrors(error.response.data.errors);
+                this.dataAccess = false;
             }
         },
         createRequest() {
-
+            this.$refs.dataRq.createRequest();
         }
     },
 });
 </script>
 
 <style>
+.ant-modal {
+    height: auto!important;
+}
+
 .events {
     list-style: none;
     margin: 0;

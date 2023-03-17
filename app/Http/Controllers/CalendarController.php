@@ -2,12 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\CalendarService;
 use Illuminate\Http\Request;
 
 class CalendarController extends Controller
 {
-    public function __construct()
+
+    protected $calendarSV;
+
+    public function __construct(CalendarService $calendarSV)
     {
-        # code...
+       $this->calendarSV = $calendarSV;
+    }
+
+    public function attendances(Request $request)
+    {
+        return $this->calendarSV->attendances($request);
+    }
+
+    public function duration(Request $request)
+    {
+        return $this->calendarSV->duration($request);
     }
 }
