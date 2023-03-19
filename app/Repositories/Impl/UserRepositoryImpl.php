@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Impl;
 
-use App\Models\Request;
+use App\Models\User;
 use App\Repositories\Impl\BaseRepositoryImpl;
-use App\Repositories\RequestRepository;
+use App\Repositories\UserRepository;
 
 /**
  * Class UserRepository
@@ -13,13 +13,18 @@ use App\Repositories\RequestRepository;
  * @author TIMESHEET
  */
 
-class RequestRepositoryImpl extends BaseRepositoryImpl implements RequestRepository
+class UserRepositoryImpl extends BaseRepositoryImpl implements UserRepository
 {
     /**
      * Configure the Model
      **/
     public function model()
     {
-        return Request::class;
+        return User::class;
     }
+
+    public function listEvent($request)
+    {
+    }
+
 }

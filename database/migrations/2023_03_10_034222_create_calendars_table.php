@@ -21,8 +21,6 @@ return new class extends Migration
             $table->time('checkout', 0);
             $table->string('unpaid_leave');
             $table->string('paid_leave');
-            $table->string('status_name');
-            $table->string('request_code')->unique()->index();
             $table->timestamps();
         });
     }

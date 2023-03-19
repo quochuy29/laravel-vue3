@@ -16,10 +16,10 @@
             <a-tag color="#87d068">Duration: {{ duration }} day</a-tag><br/><br/>
             <a-tag color="#cd201f">Approver</a-tag><br/><br/>
             <a-select placeholder="Selected" style="width: 100px" v-model:value="approve">
-                <a-select-option v-for="(item, index) in approver" :key="index" :value="`${item.approve_user_code}_${approve_user_name}`">{{ item.approve_user_name }}</a-select-option>
+                <a-select-option v-for="(item, index) in approver" :key="index" :value="`${item.approve_user_code}_${item.approve_user_name}`">{{ item.approve_user_name }}</a-select-option>
             </a-select><br/><br/>
             <a-tag color="#cd201f">Reason</a-tag><br/><br/>
-            <a-textarea placeholder="Textarea with clear icon" allow-clear />
+            <a-textarea v-model:value="reason" placeholder="Textarea with clear icon" allow-clear />
         </div>
     </a-spin>
 </template>
@@ -42,7 +42,8 @@
                     startTime: '',
                     endTime: ''
                 },
-                duration: 1
+                duration: 1,
+                reason: ''
             }
         },
         watch: {

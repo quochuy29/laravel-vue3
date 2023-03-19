@@ -62,10 +62,12 @@
                     'time_request': dataRequest.timeWork,
                     'approver': dataRequest.approve,
                     'duration': dataRequest.duration,
-                    'date': dataRequest.data
+                    'date': dataRequest.date,
+                    'reason': dataRequest.reason,
+                    'type': this.type
                 }
 
-                const res = await axios.post('api/create-request', dataRequest);
+                const res = await axios.post('api/create-request', data);
             }
         },
     });

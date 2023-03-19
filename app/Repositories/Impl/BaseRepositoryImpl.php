@@ -245,6 +245,18 @@ abstract class BaseRepositoryImpl implements BaseRepository
     }
 
     /**
+     * Retrieve first record by given mutilple value column
+     *
+     * @param string $column
+     * @param $value
+     * @return Model
+     */
+    public function findOneByConditions($conditions)
+    {
+        return $this->model->firstWhere($conditions);
+    }
+
+    /**
      * Get first or create new record
      *
      * @param array $conditions
