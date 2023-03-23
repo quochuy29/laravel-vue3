@@ -60,7 +60,7 @@ abstract class BaseRepositoryImpl implements BaseRepository
         if (!$model instanceof Model) {
             throw new \Exception("Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model");
         }
-
+        
         return $this->model = $model;
     }
 

@@ -13,6 +13,16 @@ use App\Repositories\CalendarRepository;
 
 class CalendarService extends BaseService
 {
+    protected $column_value = [
+        'code',
+        'checkin',
+        'checkout',
+        'unpaid_leave',
+        'paid_leave',
+        'unpaid_flag',
+        'late_flag',
+        'early_flag'
+    ];
     
     /**
      * Configure the getRepository
@@ -22,9 +32,34 @@ class CalendarService extends BaseService
         return CalendarRepository::class;
     }
 
-    public function listEvent($request)
+    public function listCalendarUser()
     {
-        return $this->_repository->listEvent($request);
+        $buildCalendarUser = [];
+        $calendarUser = $this->_repository->listCalendarUser([
+            'user_code' => 'pLbMuC',
+            'user_name' => 'huypq'
+        ]);
+
+        $calendarUser->map(function($value) use (&$buildCalendarUser) {
+            $defaultStartTime = strtotime('08:30');
+            $defaultEndTime = strtotime('17:30');
+            $breakStartTime = strtotime('12:00');
+            $breakEndTime = strtotime('13:00');
+            if ($value['late_flag'] == 1) {
+                $lateTime = date('H:i', strtotime($value['checkin']));
+                $value['late_time'] = $this->requestEditEarlyLate(strtotime($lateTime), $defaultStartTime, $breakStartTime, $breakEndTime, $defaultEndTime, $defaultStartTime, $value['late_flag']);
+                array_push($this->column_value, 'late_time');
+            }
+
+            if ($value['early_flag'] == 1) {
+                $lateTime = date('H:i', strtotime($value['checkin']));
+                $value['early'] = $this->requestEditEarlyLate(strtotime($lateTime), $defaultStartTime, $breakStartTime, $breakEndTime, $defaultEndTime, $defaultStartTime, $value['late_flag']);
+                array_push($this->column_value, 'early_time');
+            }
+            $buildCalendarUser[$value['date']] = [(object) collect($value)->only($this->column_value)->toArray()];
+        });
+
+        return $buildCalendarUser;
     }
 
     public function attendances($request)
@@ -62,7 +97,7 @@ class CalendarService extends BaseService
         }
     }
 
-    public function requestEditEarlyLate($endTime, $startTime, $breakStartTime, $breakEndTime, $defaultEndTime, $defaultStartTime)
+    public function requestEditEarlyLate($endTime, $startTime, $breakStartTime, $breakEndTime, $defaultEndTime, $defaultStartTime, $isMinute = 0)
     {
         if ($endTime >= $defaultEndTime) {
             $endTime = $defaultEndTime;
@@ -78,6 +113,16 @@ class CalendarService extends BaseService
 
         if ($startTime <= $breakEndTime && $startTime >= $breakStartTime) {
             $startTime = $breakEndTime;
+        }
+
+        if ($isMinute == 1) {
+            if ($startTime <= $breakStartTime && $endTime >= $breakEndTime) {
+                $duration = (($endTime - $startTime - 3600)/60);
+            } else {
+                $duration = (($endTime - $startTime)/60);
+            }
+
+            return $duration;
         }
 
         if ($startTime <= $breakStartTime && $endTime >= $breakEndTime) {

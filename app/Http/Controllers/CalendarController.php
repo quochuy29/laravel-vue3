@@ -15,6 +15,11 @@ class CalendarController extends Controller
        $this->calendarSV = $calendarSV;
     }
 
+    public function listCalendarUser()
+    {
+        return $this->calendarSV->listCalendarUser();
+    }
+
     public function attendances(Request $request)
     {
         return $this->calendarSV->attendances($request);

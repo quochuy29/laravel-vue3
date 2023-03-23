@@ -31,7 +31,12 @@
         <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:90%">
             <template #dateCellRender="{ current }">
                 <ul class="events">
-                    <li v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content" :title="item.content">
+                    <li v-if="requestData[current.format('YYYY-MM-DD').toString()]" v-for="request in requestData[current.format('YYYY-MM-DD').toString()]" :key="request.unpaid_flag">
+                        <a-tag v-if="request.early_flag == 1" color="#faad14">Early Arrival {{request.early_time}}m</a-tag>
+                        <a-tag v-if="request.late_flag == 1" color="#faad14">Late Arrival {{request.late_time}}m</a-tag>
+                        <a-tag v-if="request.unpaid_flag == 1" color="#ff4d4f">Unpaid leave {{request.unpaid_leave}}</a-tag>
+                    </li>
+                    <li v-if="monthData[current.format('YYYY-MM-DD').toString()]" v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content" :title="item.content">
                         <a-badge :status="item.type" :text="item.content" />
                     </li>
                 </ul>
@@ -43,11 +48,13 @@
 <script>
 import event from './event.vue';
 import request from './request.vue';
-import { defineComponent, ref, onMounted, onBeforeMount } from 'vue';
+import { defineComponent, ref, onMounted, onBeforeMount, createVNode } from 'vue';
 import axios from 'axios';
 import moment from 'moment';
 import _ from 'lodash';
 import dayjs from 'dayjs';
+import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
+import { Modal } from 'ant-design-vue';
 
 export default defineComponent({
     components: {
@@ -70,13 +77,20 @@ export default defineComponent({
         const monthData = ref({});
         const loadData = ref(true);
         const dataAccess = ref(false);
+        const requestData = ref({});
         const getDataCalendar = async () => {
             const res = await axios.get("api/calendar");
             monthData.value = res.data;
         };
+
+        const listCalendarUser = async () => {
+            const res = await axios.get("api/get-list-calendar-user");
+            requestData.value = res.data;
+        }
         
         onBeforeMount(async() => {
             await getDataCalendar();
+            await listCalendarUser();
             loadData.value = !loadData.value;
         });
         
@@ -89,7 +103,8 @@ export default defineComponent({
             getDataCalendar,
             monthData,
             loadData,
-            dataAccess
+            dataAccess,
+            requestData
         };
     },
     async serverPrefetch() {
@@ -101,6 +116,19 @@ export default defineComponent({
             this.modal2Visible = true;
         },
         createRequestAct () {
+            const date1 = this.time;
+            const date2 = dayjs();
+            if (date1.diff(date2, 'hour') > 0) {
+                Modal.confirm({
+                    title: 'NOT FOUND TIMESHEET',
+                    icon: createVNode(ExclamationCircleOutlined),
+                    content: '',
+                    okText: 'OK',
+                    cancelText: 'Cancel',
+                    centered: true
+                });
+                return false;
+            };
             this.modal2Visible = false;
             this.visRequest = true;
         },
@@ -229,6 +257,11 @@ export default defineComponent({
 .choose-act {
     display: flex;
     justify-content: center;
+}
+
+.ant-tag {
+    margin: 0 auto;
+    width: 102px;
 }
 
 </style>

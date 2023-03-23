@@ -17,6 +17,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind("App\Repositories\RequestStatusRepository", "App\Repositories\Impl\RequestStatusRepositoryImpl");
         $this->app->bind("App\Repositories\CalendarRepository", "App\Repositories\Impl\CalendarRepositoryImpl");
         $this->app->bind("App\Repositories\RequestRepository", "App\Repositories\Impl\RequestRepositoryImpl");
+        $this->app->bind("App\Repositories\RequestStartRepository", "App\Repositories\Impl\RequestStartRepositoryImpl");
+        $this->app->bind("App\Repositories\LeaveRequestRepository", "App\Repositories\Impl\LeaveRequestRepositoryImpl");
+        $this->app->bind("App\Repositories\LeaveRequestHistoryRepository", "App\Repositories\Impl\LeaveRequestHistoryRepositoryImpl");
     }
 
     /**

@@ -9,15 +9,17 @@ namespace App\Repositories;
  * @author TIMESHEET
 */
 
-interface CalendarRepository
+interface RequestStartRepository
 {
     /**
      * Configure the Model
      **/
     public function model();
 
-    public function listCalendarUser($conditions);
+    public function listEvent($request);
 
     public function upsert(array $value = [], array $condition, array $column);
+
+    public function updateDateStart();
 
 }

@@ -36,6 +36,9 @@ RUN set -eux; \
          echo "INSTALL xlsx2csv"; \
             apk add --no-cache python3 py3-pip; \
             pip install xlsx2csv; \
+        \
+         echo "INSTALL supervisor"; \
+            pip install supervisor; \
         echo 'CLEAN UP TEMP TO REDUCE DOCKER IMAGE SIZES'; \
         rm -rf /tmp/* /var/cache/apk/*
 
@@ -132,6 +135,9 @@ RUN set -eux; \
 
 CMD ["php-fpm"]
 EXPOSE 9000
+RUN mkdir -p /etc/supervisor/conf.d
+COPY .docker/php/workers/*.conf /etc/supervisor/conf.d
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/scheduler_run.conf"]
 
 ## php-fpm-dev image: install php extension support for developer
 FROM php-fpm-alpine-builder AS php-fpm-dev

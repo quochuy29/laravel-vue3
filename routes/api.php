@@ -28,3 +28,4 @@ Route::get('approver', [RequestApproveController::class, 'listApprovers']);
 Route::get('attendances/{date}', [CalendarController::class, 'attendances']);
 Route::get('duration', [CalendarController::class, 'duration']);
 Route::post('create-request', [RequestController::class, 'createRequest']);
+Route::get('get-list-calendar-user', [CalendarController::class, 'listCalendarUser']);

@@ -139,7 +139,7 @@ npm-install: ## Run NPM install in APP container
 	rm -rf node_modules && docker exec -t --user 0 laravel_app npm install
 
 up-db: ## Migrate database for all tenant
-	docker exec -t laravel_app sh ./phinxMigrateForAllCustomer.sh
+	docker exec -t laravel_app php artisan migrate
 
 # clean: ## Remove all tenant dir, run this on your personal computer only
 # 	rm -rfv application/configs/*.application.ini;\

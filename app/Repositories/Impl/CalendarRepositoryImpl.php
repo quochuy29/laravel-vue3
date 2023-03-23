@@ -6,6 +6,7 @@ use App\Models\Calendar;
 use App\Models\Event;
 use App\Repositories\Impl\BaseRepositoryImpl;
 use App\Repositories\CalendarRepository;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class UserRepository
@@ -24,11 +25,9 @@ class CalendarRepositoryImpl extends BaseRepositoryImpl implements CalendarRepos
         return Calendar::class;
     }
 
-    public function listEvent($request)
+    public function listCalendarUser($conditions)
     {
-        $datas = Event::pluck('title', 'date')->toArray();
-
-        return $datas;
+        return $this->model::where($conditions)->get();
     }
 
 }
