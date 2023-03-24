@@ -30,14 +30,15 @@
     export default defineComponent({
         props: {
             time: [String, Object],
-            approver: [Object, Array]
+            approver: [Object, Array],
+            timeAutoFill: [String]
         },
         data() {
             return {
                 timeMain: dayjs(this.time).format('YYYY-MM-DD'),
                 date: dayjs(this.time),
                 timeWork: {
-                    startTime: '',
+                    startTime: (this.timeAutoFill !== '') ? dayjs(this.timeAutoFill, 'HH:mm').format('HH:mm') : dayjs('08:30', 'HH:mm').format('HH:mm'),
                     endTime: dayjs('17:30', 'HH:mm').format('HH:mm')
                 },
                 duration: 1,

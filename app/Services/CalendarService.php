@@ -97,8 +97,17 @@ class CalendarService extends BaseService
         }
     }
 
-    public function requestEditEarlyLate($endTime, $startTime, $breakStartTime, $breakEndTime, $defaultEndTime, $defaultStartTime, $isMinute = 0)
+    public function requestEditEarlyLate(
+        $endTime, 
+        $startTime, 
+        $breakStartTime, 
+        $breakEndTime, 
+        $defaultEndTime, 
+        $defaultStartTime, 
+        $isMinute = 0
+    )
     {
+        $duration = 0;
         if ($endTime >= $defaultEndTime) {
             $endTime = $defaultEndTime;
         }
@@ -138,7 +147,7 @@ class CalendarService extends BaseService
         if ($duration > 1) {
             $duration = 1;
         }
-        
+
         return round($duration, 3);
     }
 

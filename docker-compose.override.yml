@@ -26,7 +26,7 @@ services:
     extra_hosts: #uncomment this section if you use linux and want run xdebug
       - host.docker.internal:host-gateway # support on linux host, container communicate with host over domain host.docker.internal (docker engine ver > 20.10)
     command: 
-       supervisord -c .docker/php/workers/scheduler_run.conf 
+      supervisord -c .docker/php/workers/scheduler_run.conf
     environment:
       APPLICATION_ENV: development
       # xdebug

@@ -18,4 +18,9 @@ class RequestController extends Controller
     {
         $this->requestSV->createRequest($request);
     }
+
+    public function getCalendarByDate(Request $request)
+    {
+        return $this->requestSV->getCalendarByDate($request);
+    }
 }

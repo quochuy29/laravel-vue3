@@ -22,4 +22,9 @@ class RequestRepositoryImpl extends BaseRepositoryImpl implements RequestReposit
     {
         return Request::class;
     }
+
+    public function findByColumn($column , $value)
+    {
+        return $this->model->where($column, $value)->first();
+    }
 }

@@ -1,6 +1,6 @@
 # docker image base
 ARG BASE_NGINX=nginx:1.21.5-alpine
-ARG BASE_PHP=php:8.1.0-fpm-alpine
+ARG BASE_PHP=php:8.1.0-fpm-bullseye
 
 FROM $BASE_NGINX as nginx-builder
 COPY .docker/nginx/templates/* /etc/nginx/templates/
@@ -11,36 +11,41 @@ ENV TZ=Asia/Tokyo
 ENV PYTHONUNBUFFERED=1
 RUN set -eux; \
         \
-        apk update; \
+        apt update; \
+        \
+        \
+        # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=841341
+        echo 'On debian image based, fix issue "Bad substitution" if /bin/sh is not bash so force point sh to bash'; \
+            ln -sf /bin/bash /bin/sh; \
         \
         echo "CHANGE TIME ZONE TO '$TZ' AT BUILD TIME ONLY"; \
-            apk add --no-cache tzdata; \
-            cp /usr/share/zoneinfo/$TZ /etc/localtime; \
-            echo $TZ > /etc/timezone; \
+            echo "env TZ=$TZ at runtime will auto change docker image timezone"; \
             echo "Test current date: $(date)"; \
-            echo "timezone will reset to UTC if we run command 'apk del tzdata' so no run command until this bug fixed by alpine maintainer"; \
         \
-        echo "INSTALL  PHP EXTENSION NEEDED 'pdo_mysql' 'opcache'"; \
-            apk add --no-cache --virtual .build-deps $PHPIZE_DEPS; \
-            docker-php-ext-install -j "$(nproc)" pdo_mysql; \
+        echo "INSTALL OS COMMON SOFTWARES"; \
+            apt-get update; \
+            apt-get install -y --no-install-recommends \
+                        wget \
+                        unzip \
+                        apt-utils; \
         \
-        echo "INSTALL PHP EXTENSION 'blackfire.so'"; \
-            version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
-            && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/alpine/amd64/$version \
-            && mkdir -p /tmp/blackfire \
-            && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
-            && mv /tmp/blackfire/blackfire-*.so $(php -r "echo ini_get ('extension_dir');")/blackfire.so \
-            && printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8307\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
-            && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz; \
+        echo "INSTALL AS ROOT DEBIAN"; \
+            apt-get install -y build-essential; \
+        echo "INSTALL BIZCRM PHP EXTENSION NEEDED 'pdo_mysql' 'ldap'"; \
+            apt-get install -y libldap2-dev libzip-dev; \
+            docker-php-ext-install -j "$(nproc)" pdo_mysql mysqli ldap zip; \
         \
          echo "INSTALL xlsx2csv"; \
-            apk add --no-cache python3 py3-pip; \
+            apt-get update; \
+            apt-get install -y  --no-install-recommends \
+            python3\
+            python3-pip; \
             pip install xlsx2csv; \
         \
          echo "INSTALL supervisor"; \
             pip install supervisor; \
         echo 'CLEAN UP TEMP TO REDUCE DOCKER IMAGE SIZES'; \
-        rm -rf /tmp/* /var/cache/apk/*
+        rm -rf /tmp/*
 
 ## php-fpm-prod image: install php extension support for production env
 FROM php-fpm-alpine-builder AS php-fpm-prod
@@ -58,7 +63,7 @@ RUN set -eux; \
         cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"; \
         \
         echo 'CLEAN UP TEMP TO REDUCE DOCKER IMAGE SIZES'; \
-        rm -rf /tmp/* /var/cache/apk/*
+        rm -rf /tmp/*
 COPY .docker/php/conf.d/z-opcache.prod.ini .docker/php/conf.d/z-php.prod.ini $PHP_INI_DIR/conf.d/
 
 #####################################################################################################################
@@ -97,66 +102,31 @@ composer install \
         --prefer-dist \
         --no-autoloader \
         --no-dev;
+        
 ##########################################################################################################
-## laravel-app: bundle  web app source code. use this image on read-only env (production, staging) ##
-##########################################################################################################
-FROM php-fpm-prod AS laravel-app
-
-# tag help inspect docker image in the future
-ARG GIT_COMMIT_HASH=unspecified
-ARG GIT_BRANCH_NAME=unspecified
-
-LABEL maintainer="huypq <phanquochuyqthm@gmail.com>" \
-    git.commit=$GIT_COMMIT_HASH \
-    git.branch=$GIT_BRANCH_NAME
-
-ENV APPLICATION_ENV=production
-
-WORKDIR /var/www/html/laravel
-COPY --chown=www-data:www-data app app
-COPY --chown=www-data:www-data bootstrap bootstrap
-COPY --chown=www-data:www-data config config
-COPY --chown=www-data:www-data database database
-COPY --chown=www-data:www-data lang lang
-COPY --chown=www-data:www-data storage storage
-COPY --chown=www-data:www-data resources resources
-COPY --chown=www-data:www-data routes routes
-
-COPY --chown=www-data:www-data composer.json artisan
-COPY --chown=www-data:www-data public/*.php public/mix-manifest.json public/
-COPY --from=composer:2.3.5 /usr/bin/composer /usr/bin/composer
-COPY --from=vendor --chown=www-data:www-data /var/www/html/laravel/vendor /var/www/html/laravel/vendor
-VOLUME ["/var/www/html/laravel/storage/app/public"]
-RUN set -eux; \
-        echo "$GIT_BRANCH_NAME - $GIT_COMMIT_HASH" > VERSION; \
-        echo "DUMP autoload class for production"; \
-        cd /var/www/html/laravel && \
-        composer dumpautoload -a;
-
-CMD ["php-fpm"]
-EXPOSE 9000
-RUN mkdir -p /etc/supervisor/conf.d
-COPY .docker/php/workers/*.conf /etc/supervisor/conf.d
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/scheduler_run.conf"]
-
 ## php-fpm-dev image: install php extension support for developer
 FROM php-fpm-alpine-builder AS php-fpm-dev
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 ENV COMPOSER_CACHE_DIR=/tmp
 WORKDIR /var/www/html/laravel
+COPY storage storage
 RUN set -eux; \
         echo "INSTALL NPM nodejs, Xdebug"; \
-            apk add nodejs-current;\
-            apk add --update npm;\
-            apk add --no-cache --virtual .build-deps $PHPIZE_DEPS; \
+            apt-get update; \
+            curl -fsSL https://deb.nodesource.com/setup_current.x | bash - && \
+            apt-get install -y nodejs; \
             pecl install xdebug-3.1.2; \
             docker-php-ext-enable xdebug; \
         \
-        apk del .build-deps; \
         cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"; \
         \
         echo 'CLEAN UP TEMP TO REDUCE DOCKER IMAGE SIZES'; \
-        rm -rf /tmp/* /var/cache/apk/*
+        rm -rf /tmp/*
+RUN mkdir -p /etc/supervisor/conf.d
 COPY .docker/php/conf.d/z-xdebug.dev.ini .docker/php/conf.d/z-php.dev.ini $PHP_INI_DIR/conf.d/
 COPY --from=composer:2.3.5 /usr/bin/composer /usr/bin/composer
+COPY .docker/php/workers/*.conf /etc/supervisor/conf.d
+CMD ["php-fpm"]
+EXPOSE 9000
+

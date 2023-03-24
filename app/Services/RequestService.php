@@ -5,11 +5,13 @@ namespace App\Services;
 use App\Models\Event;
 use App\Models\Request;
 use App\Models\User;
+use App\Repositories\Impl\RequestRepositoryImpl;
 use App\Repositories\Impl\RequestTypeRepositoryImpl;
 use App\Repositories\Impl\UserRepositoryImpl;
 use App\Repositories\RequestRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use PhpParser\Node\Expr\Cast\Object_;
 
 /**
  * Class RequestService
@@ -27,7 +29,7 @@ class RequestService extends BaseService
     public function __construct(
         UserRepositoryImpl $userRepo,
         RequestTypeRepositoryImpl $requestTypeRepo,
-        RequestRepository $requestRepo)
+        RequestRepositoryImpl $requestRepo)
     {
         $this->userRepo = $userRepo;
         $this->requestTypeRepo = $requestTypeRepo;
@@ -40,6 +42,11 @@ class RequestService extends BaseService
     public function getRepository()
     {
         return RequestRepository::class;
+    }
+
+    public function getCalendarByDate(Object $request)
+    {
+        return $this->_repository->findByColumn('date', $request->date);
     }
 
     public function createRequest(Object $request)
@@ -63,7 +70,7 @@ class RequestService extends BaseService
         }
 
         $data = [
-            'request_code' => 'ghevaysao',
+            'request_code' => 'ghevaysao1',
             'calendar_code' => 'abc',
             'request_type_code' => $requestType->request_type_code,
             'request_type_name' => $requestType->request_type_name,

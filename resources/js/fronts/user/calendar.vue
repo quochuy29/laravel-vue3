@@ -17,7 +17,7 @@
             width="1000px"
             height="600px"
             @ok="createRequest">
-            <request ref="dataRq" :time="time" :key="visRequest"></request>
+            <request ref="dataRq" :requestData="requestData" :time="time" :key="visRequest"></request>
         </a-modal>
         <a-modal
             v-model:visible="modal2Visible"
@@ -34,7 +34,7 @@
                     <li v-if="requestData[current.format('YYYY-MM-DD').toString()]" v-for="request in requestData[current.format('YYYY-MM-DD').toString()]" :key="request.unpaid_flag">
                         <a-tag v-if="request.early_flag == 1" color="#faad14">Early Arrival {{request.early_time}}m</a-tag>
                         <a-tag v-if="request.late_flag == 1" color="#faad14">Late Arrival {{request.late_time}}m</a-tag>
-                        <a-tag v-if="request.unpaid_flag == 1" color="#ff4d4f">Unpaid leave {{request.unpaid_leave}}</a-tag>
+                        <a-tag v-if="request.unpaid_flag == 1" color="#ff4d4f">Unpaid leave {{request.unpaid_leave}} day</a-tag>
                     </li>
                     <li v-if="monthData[current.format('YYYY-MM-DD').toString()]" v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content" :title="item.content">
                         <a-badge :status="item.type" :text="item.content" />
@@ -261,7 +261,7 @@ export default defineComponent({
 
 .ant-tag {
     margin: 0 auto;
-    width: 102px;
+    width: 135px;
 }
 
 </style>
