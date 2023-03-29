@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Repositories\Impl\LeaveRequestRepositoryImpl;
 use App\Repositories\RequestStartRepository;
 
 /**

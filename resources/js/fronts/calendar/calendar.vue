@@ -17,7 +17,7 @@
             width="1000px"
             height="600px"
             @ok="createRequest">
-            <request ref="dataRq" :requestData="requestData" :time="time" :key="visRequest"></request>
+            <request ref="dataRq" v-on:off-ovl="offOvl" :requestData="requestData" :time="time" :key="visRequest"></request>
         </a-modal>
         <a-modal
             v-model:visible="modal2Visible"
@@ -32,9 +32,9 @@
             <template #dateCellRender="{ current }">
                 <ul class="events">
                     <li v-if="requestData[current.format('YYYY-MM-DD').toString()]" v-for="request in requestData[current.format('YYYY-MM-DD').toString()]" :key="request.unpaid_flag">
-                        <a-tag v-if="request.early_flag == 1" color="#faad14">Early Arrival {{request.early_time}}m</a-tag>
-                        <a-tag v-if="request.late_flag == 1" color="#faad14">Late Arrival {{request.late_time}}m</a-tag>
-                        <a-tag v-if="request.unpaid_flag == 1" color="#ff4d4f">Unpaid leave {{request.unpaid_leave}} day</a-tag>
+                        <a-tag v-if="request.early_flag == 1" color="#faad14">Early Arrival {{request.early_time}}m</a-tag><br/>
+                        <a-tag v-if="request.late_flag == 1" color="#faad14">Late Arrival {{request.late_time}}m</a-tag><br/>
+                        <a-tag v-if="request.unpaid_flag == 1" color="#ff4d4f">Unpaid leave {{request.unpaid_leave}} day</a-tag><br/>
                     </li>
                     <li v-if="monthData[current.format('YYYY-MM-DD').toString()]" v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content" :title="item.content">
                         <a-badge :status="item.type" :text="item.content" />
@@ -116,9 +116,9 @@ export default defineComponent({
             this.modal2Visible = true;
         },
         createRequestAct () {
-            const date1 = this.time;
-            const date2 = dayjs();
-            if (date1.diff(date2, 'hour') > 0) {
+            const dateChoose = dayjs(this.time);
+            const dateNow = dayjs();
+            if (dateChoose.diff(dateNow, 'hour') > 0) {
                 Modal.confirm({
                     title: 'NOT FOUND TIMESHEET',
                     icon: createVNode(ExclamationCircleOutlined),
@@ -146,7 +146,6 @@ export default defineComponent({
             } else {
                 convertDate = value.format('YYYY-MM-DD');
             }
-
 
             if (this.monthData[convertDate] !== undefined && this.monthData[convertDate].length > 0) {
                 this.dataId = _.cloneDeep(this.monthData[convertDate]).map(v => ({...v, 'date': dayjs(v.date)}));
@@ -201,6 +200,11 @@ export default defineComponent({
         },
         createRequest() {
             this.$refs.dataRq.createRequest();
+        },
+        offOvl() {
+            this.visChooseAction = false;
+            this.visRequest = false;
+            this.modal2Visible = false;
         }
     },
 });
@@ -259,9 +263,10 @@ export default defineComponent({
     justify-content: center;
 }
 
-.ant-tag {
+.events .ant-tag {
     margin: 0 auto;
-    width: 135px;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 </style>

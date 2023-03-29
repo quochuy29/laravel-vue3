@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import index from '../user/index.vue';
-import calendar from '../user/calendar.vue';
+import index from '../calendar/index.vue';
+import calendar from '../calendar/calendar.vue';
+import myRequest from '../request/index.vue';
 
 const routes = [
 	{
@@ -14,6 +15,11 @@ const routes = [
 		name: 'calendar',
 		component: calendar
 	},
+	{
+		path: '/my-request',
+		name: 'my-request',
+		component: myRequest
+	}
 ]
 export default createRouter({
 	history: createWebHistory(),

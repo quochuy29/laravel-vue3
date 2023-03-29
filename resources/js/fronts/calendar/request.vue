@@ -1,5 +1,5 @@
 <template>
-    <a-tabs v-model:activeKey="activeKey" @change="checkType">
+    <a-tabs v-model:activeKey="activeKey">
         <a-tab-pane key="1" tab="Edit Timesheet"><edit ref="edit" :time="time" :approver="approver"></edit></a-tab-pane>
         <a-tab-pane key="2" tab="Late"><late :requestData="requestData" :timeAutoFill="timeLateAutoFill" ref="late" :time="time" :approver="approver"></late></a-tab-pane>
         <a-tab-pane key="3" tab="Early"><early :requestData="requestData" :timeAutoFill="timeEarlyAutoFill" ref="early" :time="time" :approver="approver"></early></a-tab-pane>
@@ -40,7 +40,7 @@
         },
         setup(props) {
             const approver = ref({});
-            const dataTab = toRaw(props.requestData)[dayjs(props.time).format('YYYY-MM-DD')][0] ?? '';
+            const dataTab = (toRaw(props.requestData)[dayjs(props.time).format('YYYY-MM-DD')]) ? toRaw(props.requestData)[dayjs(props.time).format('YYYY-MM-DD')][0] : '';
             const key = (dataTab !== '') ? (dataTab.late_flag == 1) ? ref('2') : ref('1') || (dataTab.early_flag == 1) ? ref('3') : ref('1') : ref('1');
             const timeLateAutoFill = (dataTab !== '' && dataTab.late_flag == 1) ? dataTab.checkin : '';
             const timeEarlyAutoFill = (dataTab !== '' && dataTab.early_flag == 1) ? dataTab.checkout : '';
@@ -61,9 +61,6 @@
             };
         },
         methods: {
-            checkType() {
-                this.type = this.activeKey;
-            },
             getDataRequest() {
                 let dataRequest = null;
                 switch (this.activeKey) {
@@ -100,10 +97,15 @@
                     'duration': dataRequest.duration,
                     'date': dataRequest.date,
                     'reason': dataRequest.reason,
-                    'type': this.type
+                    'type': this.activeKey
                 }
-
-                const res = await axios.post('api/create-request', data);
+console.log(dataRequest);
+                try {
+                    const res = await axios.post('api/create-request', data);
+                    this.$emit('off-ovl');
+                } catch (error) {
+                    console.log(error);                    
+                }
             }
         },
     });

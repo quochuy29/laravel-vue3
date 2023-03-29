@@ -28,11 +28,11 @@
                 <a-timeline-item>OT &gt; 12h nghỉ giữa ca 2.0h</a-timeline-item>
             </a-timeline>
             <a-tag color="#cd201f">Approver</a-tag><br/><br/>
-            <a-select placeholder="Selected" style="width: 100px">
-                <a-select-option v-for="(item, index) in approver" :key="index" :value="item.approve_user_code">{{ item.approve_user_name }}</a-select-option>
+            <a-select placeholder="Selected" style="width: 100px" v-model:value="approve">
+                <a-select-option v-for="(item, index) in approver" :key="index" :value="`${item.approve_user_code}_${item.approve_user_name}`">{{ item.approve_user_name }}</a-select-option>
             </a-select><br/><br/>
             <a-tag color="#cd201f">Reason</a-tag><br/><br/>
-            <a-textarea placeholder="Textarea with clear icon" allow-clear />
+            <a-textarea v-model:value="reason" placeholder="Textarea with clear icon" allow-clear />
         </div>
     </a-spin>
 </template>
@@ -50,10 +50,12 @@
             return {
                 timeMain: dayjs(this.time).format('YYYY-MM-DD'),
                 date: '',
+                approve: '',
                 timeWork: {
                     startTime: '',
                     endTime: ''
                 },
+                reason: '',
                 duration: 1,
                 timeInOut: ''
             }
@@ -74,7 +76,7 @@
                 deep:true,
                 handler: async function (value) {
                     this.spinning = true;
-                    const date = value.format('YYYY-MM-DD');
+                    const date = value ? value.format('YYYY-MM-DD') : '';
                     const attendances = await axios.get(`api/attendances/${date}`);
                     this.timeInOut = '';
                     if (attendances.data) {

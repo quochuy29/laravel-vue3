@@ -18,4 +18,6 @@ interface RequestRepository
 
     public function upsert(array $value = [], array $condition, array $column);
 
+    public function getRequestByConditions(array $condition = [], $tableJoin, $request);
+
 }

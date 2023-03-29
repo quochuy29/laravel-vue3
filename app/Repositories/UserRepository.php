@@ -18,4 +18,6 @@ interface UserRepository
 
     public function upsert(array $value = [], array $condition, array $column);
 
+    public function findOneByConditions($conditions);
+
 }

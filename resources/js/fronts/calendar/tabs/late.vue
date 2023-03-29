@@ -47,6 +47,13 @@
                 reason: ''
             }
         },
+        async mounted() {
+            if (this.timeAutoFill == '') {
+                return;
+            }
+            const duration = await axios.get(`api/duration?start_time=${toRaw(this.timeWork.startTime)}&end_time=${toRaw(this.timeWork.endTime)}&type=2`);
+            this.duration = duration.data;
+        },
         watch: {
             timeWork: {
                 deep:true,
@@ -62,6 +69,7 @@
         },
         setup() {
             const spinning = ref(false);
+
             return {
                 spinning
             };

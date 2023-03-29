@@ -3,10 +3,8 @@
 namespace App\Repositories\Impl;
 
 use App\Models\Calendar;
-use App\Models\Event;
 use App\Repositories\Impl\BaseRepositoryImpl;
 use App\Repositories\CalendarRepository;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Class UserRepository
