@@ -32,3 +32,4 @@ Route::get('get-calendar-by-date/{date}', [RequestController::class, 'getCalenda
 Route::get('approver', [RequestApproveController::class, 'listApprovers']);
 Route::get('my-request', [RequestController::class, 'myRequest']);
 Route::put('approve-request/{code}', [RequestController::class, 'approveRequest']);
+Route::put('reject-request/{code}', [RequestController::class, 'rejectRequest']);
