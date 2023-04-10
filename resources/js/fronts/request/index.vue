@@ -18,9 +18,35 @@
             <template v-if="(column.key === 'request_code') ? 'style: display: none;' : ''">
             </template>
             <template v-if="column.key === 'action'">
-                <a-button type="primary" @click="approveAct(record.request_code)">
-                    Apporver
-                </a-button>
+                <a-dropdown v-if="!record.status">
+                    <button class="ant-btn action-request ant-dropdown-trigger ant-dropdown-open ant-btn-icon-only" type="button">
+                        <span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis">
+                            <svg focusable="false" class="" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true" viewBox="64 64 896 896">
+                                <path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path>
+                            </svg>
+                        </span>
+                    </button>
+                    <template #overlay>
+                        <a-menu>
+                            <a-menu-item key="1" @click="approveAct('approve', record.request_code)" >
+                                Apporver
+                            </a-menu-item>
+                            <a-menu-item key="2" @click="approveAct('pending',record.request_code)">
+                                Pending
+                            </a-menu-item>
+                            <a-menu-item key="3" @click="approveAct('reject',record.request_code)">
+                                Reject
+                            </a-menu-item>
+                            <a-menu-item key="4" @click="approveAct('cancel',record.request_code)">
+                                Cancelled
+                            </a-menu-item>
+                        </a-menu>
+                    </template>
+                </a-dropdown>
+                <Common-approve v-if="record.status == 'Approve'" />
+                <Common-reject v-if="record.status == 'Reject'" />
+                <Common-pending v-if="record.status == 'Pending'" />
+                <Common-cancel v-if="record.status == 'Cancelled'" />
             </template>
         </template>
     </a-table>
@@ -65,14 +91,14 @@
             const columns = [
                 {
                     title: 'Start time',
-                    dataIndex: 'date_start',
-                    key: 'date_start',
+                    dataIndex: 'start_time',
+                    key: 'start_time',
                     sorter: true
                 },
                 {
                     title: 'End time',
-                    dataIndex: 'date_end',
-                    key: 'date_end',
+                    dataIndex: 'end_time',
+                    key: 'end_time',
                     sorter: true
                 },
                 {
@@ -152,9 +178,9 @@
                 this.params.page = page;
                 this.getRequest(this.params);
             },
-            async approveAct(code) {
+            async approveAct(type,code) {
                 try {
-                    const res = axios.put(`api/approve-request/${code}`);
+                    const res = axios.put(`api/approve-request/${type}/${code}`);
                 } catch (error) {
                     
                 }
@@ -179,9 +205,14 @@
     padding: 0 10px;
 }
 .ant-row {
+    margin: 0 !important;
     padding: 10px;
     .ant-picker {
         width: 100%;
     }
+}
+.action-request {
+    width: 32px;
+    height: 32px;
 }
 </style>

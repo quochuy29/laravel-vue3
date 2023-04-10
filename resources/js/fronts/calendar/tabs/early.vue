@@ -31,7 +31,8 @@
         props: {
             time: [String, Object],
             approver: [Object, Array],
-            timeAutoFill: [String]
+            timeAutoFill: [String],
+            endTime: [String]
         },
         data() {
             return {
@@ -39,8 +40,8 @@
                 date: dayjs(this.time),
                 approve: '',
                 timeWork: {
-                    startTime: (this.timeAutoFill !== '') ? dayjs(this.timeAutoFill, 'HH:mm').format('HH:mm') : dayjs('08:30', 'HH:mm').format('HH:mm'),
-                    endTime: dayjs('17:30', 'HH:mm').format('HH:mm')
+                    startTime: (this.timeAutoFill !== '' && this.timeAutoFill !== null) ? dayjs(this.timeAutoFill, 'HH:mm').format('HH:mm') : dayjs('08:30', 'HH:mm').format('HH:mm'),
+                    endTime: (this.endTime !== '') ? this.endTime : dayjs('17:30', 'HH:mm').format('HH:mm')
                 },
                 reason: '',
                 duration: 1

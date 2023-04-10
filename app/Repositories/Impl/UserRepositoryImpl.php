@@ -10,7 +10,7 @@ use App\Repositories\UserRepository;
  * Class UserRepository
  * @package App\Repositories\Impl
  * @version July 28, 2022, 9:32 am UTC
- * @author TIMESHEET
+ * @author Huypq
  */
 
 class UserRepositoryImpl extends BaseRepositoryImpl implements UserRepository

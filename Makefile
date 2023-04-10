@@ -126,7 +126,7 @@ show-log-db: ## Show log mysql server container
 # show-log-saml: ## Show log saml server - keycloak container
 # 	docker logs -f keycloak
 npm-run: ## Run NPM run in APP container
-	docker exec -t --user 0 laravel_app npm run dev
+	docker exec -it --user 0 laravel_app npm run dev
 
 check-eslint: ## Run check eslint in source
 	docker exec -t --user 0 laravel_app npm run eslint

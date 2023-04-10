@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,10 +7,10 @@
     <title>Document</title>
 </head>
 <body>
-    <p>Xin chào người dùng {{ $mailInfo['username'] }}</p>
-    <p>Request timesheet của bạn vừa reject bởi người approve của hệ thống</p>
+    <p>Xin chào người dùng {{ $mailInfo['user_name'] }} !</p>
+    <p>Yêu cầu [Điều chỉnh timesheet] của bạn đã bị {{ $mailInfo['user_approve'] }} {{$mailInfo['type']['type_request']}}</p>
     <p>Lý do là : </p></br>
 
     <img src="https://i.kym-cdn.com/entries/icons/original/000/037/848/cover2.jpg" alt="" width="200px">
 </body>
-</html> -->
+</html>

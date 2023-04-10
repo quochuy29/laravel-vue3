@@ -12,6 +12,8 @@ class TranferBuildDataCalendar extends Command
     protected $column_value = [
         'code',
         'date',
+        'checkin_origin',
+        'checkout_origin',
         'checkin',
         'checkout',
         'unpaid_leave',
@@ -73,17 +75,20 @@ class TranferBuildDataCalendar extends Command
             $late_flag = 0;
             $early_flag = 0;
             $unpaid_flag = 0;
-
+            $late_time = 0;
+            $early_time = 0;
 
             if ($start_time > $defaultStartTime) {
+                $late_time = $calendarSer->requestEditEarlyLate($start_time, $defaultStartTime, $breakStartTime, $breakEndTime, $defaultEndTime, $defaultStartTime);
                 $late_flag = 1;
             }
 
             if ($end_time < $defaultEndTime) {
+                $early_time = $calendarSer->requestEditEarlyLate($defaultEndTime, $end_time, $breakStartTime, $breakEndTime, $defaultEndTime, $defaultStartTime);
                 $early_flag = 1;
             }
 
-            $unpaid_leave = $calendarSer->requestEditEarlyLate($end_time, $start_time, $breakStartTime, $breakEndTime, $defaultEndTime, $defaultStartTime);
+            $unpaid_leave = $late_time + $early_time;
 
             if ($unpaid_leave > 0.188) {
                 $unpaid_flag = 1;
@@ -96,6 +101,8 @@ class TranferBuildDataCalendar extends Command
                 'user_code' => $input[$ran_keys]['code'],
                 'user_name' => $input[$ran_keys]['name'],
                 'date' => date("Y-m-d"),
+                'checkin_origin' => date('H:i', $start_time),
+                'checkout_origin' => date('H:i', $end_time),
                 'checkin' => date('H:i', $start_time),
                 'checkout' => date('H:i', $end_time),
                 'unpaid_leave' => $unpaid_leave,

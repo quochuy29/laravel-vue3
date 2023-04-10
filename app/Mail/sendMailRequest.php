@@ -42,13 +42,11 @@ class sendMailRequest extends Mailable
      */
     public function build()
     {
-       dd(view('content_send_mail_request'));
-        // dd($this->view('content_send_mail_request'));
         return $this->subject($this->subject)
             ->to($this->mailTo)
             ->cc($this->mailCc)
             ->bcc($this->mailBcc)
-            ->view('welcome');
+            ->view('content_send_mail_request');
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Repositories\LeaveRequestRepository;
+use App\Repositories\UserRepository;
 
 /**
  * Class EventService
@@ -11,7 +11,7 @@ use App\Repositories\LeaveRequestRepository;
  * @author Huypq
  */
 
-class LeaveRequestService extends BaseService
+class UserService extends BaseService
 {
     
     /**
@@ -19,7 +19,7 @@ class LeaveRequestService extends BaseService
      **/
     public function getRepository()
     {
-        return LeaveRequestRepository::class;
+        return UserRepository::class;
     }
 
     public function listEvent($request)

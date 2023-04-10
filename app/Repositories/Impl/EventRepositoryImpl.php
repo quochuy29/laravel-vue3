@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Http;
  * Class UserRepository
  * @package App\Repositories\Impl
  * @version July 28, 2022, 9:32 am UTC
- * @author TIMESHEET
+ * @author Huypq
  */
 
 class EventRepositoryImpl extends BaseRepositoryImpl implements EventRepository

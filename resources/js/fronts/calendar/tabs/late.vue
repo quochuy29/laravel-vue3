@@ -32,7 +32,8 @@
             time: [String, Object],
             approver: [Object, Array],
             requestData: [Array, Object],
-            timeAutoFill: [String]
+            timeAutoFill: [String],
+            startTime: [String]
         },
         data() {
             return {
@@ -40,8 +41,8 @@
                 date: dayjs(this.time),
                 approve: '',
                 timeWork: {
-                    startTime: dayjs('08:30', 'HH:mm').format('HH:mm'),
-                    endTime: (this.timeAutoFill !== '') ? dayjs(this.timeAutoFill, 'HH:mm').format('HH:mm') : dayjs('17:30', 'HH:mm').format('HH:mm')
+                    startTime: (this.startTime !== '') ? this.startTime : dayjs('08:30', 'HH:mm').format('HH:mm'),
+                    endTime: (this.timeAutoFill !== '' && this.timeAutoFill !== null) ? dayjs(this.timeAutoFill, 'HH:mm').format('HH:mm') : dayjs('17:30', 'HH:mm').format('HH:mm')
                 },
                 duration: 1,
                 reason: ''

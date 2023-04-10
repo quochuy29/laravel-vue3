@@ -11,7 +11,7 @@ use App\Repositories\RequestApproveRepository;
  * Class UserRepository
  * @package App\Repositories\Impl
  * @version July 28, 2022, 9:32 am UTC
- * @author TIMESHEET
+ * @author Huypq
  */
 
 class RequestApproveRepositoryImpl extends BaseRepositoryImpl implements RequestApproveRepository

@@ -8,13 +8,15 @@ use App\Repositories\CalendarRepository;
  * Class EventService
  * @package App\Services
  * @version July 28, 2022, 9:32 am UTC
- * @author TIMESHEET
+ * @author Huypq
  */
 
 class CalendarService extends BaseService
 {
     protected $column_value = [
         'code',
+        'checkin_origin',
+        'checkout_origin',
         'checkin',
         'checkout',
         'unpaid_leave',
@@ -32,13 +34,16 @@ class CalendarService extends BaseService
         return CalendarRepository::class;
     }
 
-    public function listCalendarUser()
+    public function listCalendarUser($condition = [])
     {
         $buildCalendarUser = [];
-        $calendarUser = $this->_repository->listCalendarUser([
-            'user_code' => 'pLbMuC',
-            'user_name' => 'huypq'
-        ]);
+
+        $condition = (empty($condition)) ? [
+            'user_code' => 'dv900n',
+            'user_name' => 'huypq1'
+        ] : $condition;
+
+        $calendarUser = $this->_repository->listCalendarUser($condition);
 
         $calendarUser->map(function($value) use (&$buildCalendarUser) {
             $defaultStartTime = strtotime('08:30');
@@ -52,10 +57,11 @@ class CalendarService extends BaseService
             }
 
             if ($value['early_flag'] == 1) {
-                $lateTime = date('H:i', strtotime($value['checkin']));
-                $value['early'] = $this->requestEditEarlyLate(strtotime($lateTime), $defaultStartTime, $breakStartTime, $breakEndTime, $defaultEndTime, $defaultStartTime, $value['late_flag']);
+                $lateTime = date('H:i', strtotime($value['checkout']));
+                $value['early_time'] = $this->requestEditEarlyLate($defaultEndTime, strtotime($lateTime), $breakStartTime, $breakEndTime, $defaultEndTime, $defaultStartTime, $value['early_flag']);
                 array_push($this->column_value, 'early_time');
             }
+
             $buildCalendarUser[$value['date']] = [(object) collect($value)->only($this->column_value)->toArray()];
         });
 
@@ -64,7 +70,11 @@ class CalendarService extends BaseService
 
     public function attendances($request)
     {
-        return $this->_repository->findOneByColumn('date', $request->date);
+        return $this->_repository->findOneByConditions([
+            'user_code' => 'dv900n',
+            'user_name' => 'huypq1',
+            'date' => $request->date
+        ]);
     }
 
     public function duration($request)
@@ -194,7 +204,15 @@ class CalendarService extends BaseService
         }
 
         if ($dateT > $dateFr) {
-            $duration = 1;
+            $duration = 0;
+            $current_date = strtotime($dateFr);
+
+            while ($current_date <= strtotime($dateT)) {
+                if (date('N', $current_date) < 6) {
+                    $duration++;
+                }
+                $current_date += 86400; // tăng thời gian lên 1 ngày
+            }
         } else {
             $duration = 0;
         }
@@ -212,7 +230,7 @@ class CalendarService extends BaseService
             $durations = 1;
         }
 
-        return round($duration + $durations, 3);
+        return round($duration + $durations - 1, 3);
     }
 
     public function regexDateTime($dateTime = '')

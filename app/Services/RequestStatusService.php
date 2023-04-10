@@ -8,7 +8,7 @@ use App\Repositories\RequestStatusRepository;
  * Class EventService
  * @package App\Services
  * @version July 28, 2022, 9:32 am UTC
- * @author TIMESHEET
+ * @author Huypq
  */
 
 class RequestStatusService extends BaseService

@@ -18,7 +18,7 @@ use App\Repositories\Impl\RequestTypeRepositoryImpl;
  * Class RequestService
  * @package App\Services
  * @version July 28, 2022, 9:32 am UTC
- * @author TIMESHEET
+ * @author HUYPQ
  */
 
 class RequestService extends BaseService
@@ -27,6 +27,12 @@ class RequestService extends BaseService
     protected $requestTypeRepo;
     protected $calendarRepo;
     protected $calendarSer;
+    protected $type = [
+        'approve' => 'đã được phê duyệt',
+        'pending' => 'tạm chưa giải quyết',
+        'reject' => 'đã bị từ chối',
+        'cancel' => 'đã bị hủy bỏ'
+    ];
 
     const TABLE_APPROVE_STATUS = 'approve_status';
 
@@ -125,63 +131,69 @@ class RequestService extends BaseService
             return false;
         }
 
-        $this->_repository->upsert(['request_code' => $request->code, 'approve_status' => 1], ['request_code'], ['approve_status']);
-        $dataFresh = $requestData->fresh();
-        if ($dataFresh['request_type_code'] == 'OT') {
-            return;
+        if ($request->type == 'approve') {
+            $this->_repository->upsert(['request_code' => $request->code, 'approve_status' => 1], ['request_code'], ['approve_status']);
+            $dataFresh = $requestData->fresh();
+            switch($dataFresh['request_type_code']) {
+                case 'OT':
+                    return;
+                    break;
+                case 'DO':
+                case 'OS':
+                    $dateToFrom = [];
+                    $this->buildDateToFrom($dateToFrom, $dataFresh);
+                    $this->calendarRepo->createCalendarApproveRequest($dateToFrom);
+                    break;
+                case 'ET':
+                case 'LT':
+                case 'EL':
+                    $dataBuild = [];
+                    $this->buildDataUpdateCalendar($dataBuild, $dataFresh);
+                    return $this->calendarRepo->upsert($dataBuild, ['code'], array_keys($dataBuild));
+                    break;
+                default:
+                    return;
+            }
         }
 
-        switch($dataFresh['request_type_code']) {
-            case 'OT':
-                return;
-                break;
-            case 'DO':
-            case 'OS':
-                $dateToFrom = [];
-                $this->buildDateToFrom($dateToFrom, $dataFresh);
-                $this->calendarRepo->createCalendarApproveRequest($dateToFrom);
-                break;
-            case 'ET':
-            case 'LT':
-            case 'EL':
-                $dataBuild = [];
-                $this->buildDataUpdateCalendar($dataBuild, $dataFresh);
-        
-                return $this->calendarRepo->upsert($dataBuild, ['code'], array_keys($dataBuild));
-                break;
-            default:
-                return;
+        if ($request->type == 'pending') {
+            $this->_repository->upsert(['request_code' => $request->code, 'approve_status' => 2], ['request_code'], ['approve_status']);
+            $dataFresh = $requestData->fresh();
+            $this->rejectRequest($dataFresh, $request->type);
         }
-       
+
+        if ($request->type == 'reject') {
+            $this->_repository->upsert(['request_code' => $request->code, 'approve_status' => 3], ['request_code'], ['approve_status']);
+            $dataFresh = $requestData->fresh();
+            $this->rejectRequest($dataFresh, $request->type);
+        }
+
+        if ($request->type == 'cancel') {
+            $this->_repository->upsert(['request_code' => $request->code, 'approve_status' => 4], ['request_code'], ['approve_status']);
+            $dataFresh = $requestData->fresh();
+            $this->rejectRequest($dataFresh, $request->type);
+        }
     }
 
-    public function rejectRequest(object $request)
+    public function rejectRequest($dataFresh = [], $type)
     {
-        if (!isset($request->code) || $request->code == '') {
-            return false;
-        }
-
-        $requestData = $this->_repository->findOneByConditions(['request_code' => $request->code, 'approve_status' => 0]);
-
-        if (!$requestData) {
-            return false;
-        }
-
         try {
-            $this->_repository->upsert(['request_code' => $request->code, 'approve_status' => 0], ['request_code'], ['approve_status']);
-            $dataFresh = $requestData->fresh();
             $user = $this->userRepo->findOneByConditions([
                 'code' => $dataFresh['user_create_code'],
                 'name' => $dataFresh['user_create_name']
             ]);
+
             $mailInfo = [
-                'subject' => '',
+                'subject' => "[Timesheet] Yêu cầu xin phép [Điều chỉnh timesheet] của bạn {$this->type[$type]}",
                 'url' => 'http://localhost:8080/my-request',
-                'username' => $dataFresh['user_create_name'] . " ({$dataFresh['user_create_code']})",
+                'user_name' => $dataFresh['user_create_name'] . " ({$dataFresh['user_create_code']})",
+                'user_approve' => $dataFresh['user_approve_name'] . " ({$dataFresh['user_approve_code']})",
                 'view' => 'content_send_mail_request',
                 'mailTo' => [
                     $user->email
-                ]
+                ],
+                'type_request' => $type,
+                'type' => $this->type
             ];
     
             Mail::send(new sendMailRequest($mailInfo));

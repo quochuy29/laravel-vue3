@@ -11,7 +11,7 @@ use App\Repositories\Impl\BaseRepositoryImpl;
  * Class UserRepository
  * @package App\Repositories\Impl
  * @version July 28, 2022, 9:32 am UTC
- * @author TIMESHEET
+ * @author Huypq
  */
 
 class RequestRepositoryImpl extends BaseRepositoryImpl implements RequestRepository
@@ -24,17 +24,15 @@ class RequestRepositoryImpl extends BaseRepositoryImpl implements RequestReposit
         return Request::class;
     }
 
-    public function findByColumn($column , $value)
+    public function findByColumn(string $column , string $value)
     {
         return $this->model->where($column, $value)->first();
     }
 
-    public function getRequestByConditions($conditions = [], $tableJoin, $request)
+    public function getRequestByConditions(array $conditions = [], string $tableJoin, object $request)
     {
         $query =  $this->model::leftJoin("$tableJoin as originJoin", 'requests.approve_status', '=', "originJoin.id")
-        ->select('originJoin.approve_status_name as status',  
-                DB::raw("CONCAT(`requests`.`date_request`, ' ', `requests`.`start_time`) as date_start"),  
-                DB::raw("CONCAT(`requests`.`date_request`, ' ', `requests`.`end_time`) as date_end"),
+        ->select('originJoin.approve_status_name as status', 
                 DB::raw("CAST(`requests`.`created_at` AS DateTime) as request_at"),
                 'requests.*')
         ->where($conditions)

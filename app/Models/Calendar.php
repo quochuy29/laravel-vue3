@@ -11,6 +11,8 @@ class Calendar extends Model
 
     protected $casts = [
         'checkin' => 'datetime:H:i',
-        'checkout' => 'datetime:H:i'
+        'checkout' => 'datetime:H:i',
+        'checkin_origin' => 'datetime:H:i',
+        'checkout_origin' => 'datetime:H:i'
     ];
 }
