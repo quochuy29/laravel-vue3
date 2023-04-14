@@ -26,4 +26,9 @@ class UserService extends BaseService
     {
         return $this->_repository->listEvent($request);
     }
+
+    public function getInfor()
+    {
+        return $this->_repository->getInfor();
+    }
 }

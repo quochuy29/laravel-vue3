@@ -28,26 +28,30 @@
                 <event ref="data" :dataId.sync="dataId" :time="time" :key="modal2Visible"></event>
             </a-spin>
         </a-modal>
-        <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:90%">
-            <template #dateCellRender="{ current }">
-                <ul class="events">
-                    <li v-if="requestData[current.format('YYYY-MM-DD').toString()]" v-for="request in requestData[current.format('YYYY-MM-DD').toString()]" :key="request.unpaid_flag">
-                        <a-tag v-if="request.early_flag == 1" color="#faad14">Early Arrival {{request.early_time}}m</a-tag><br/>
-                        <a-tag v-if="request.late_flag == 1" color="#faad14">Late Arrival {{request.late_time}}m</a-tag><br/>
-                        <a-tag v-if="request.unpaid_flag == 1" color="#ff4d4f">Unpaid leave {{request.unpaid_leave}} day</a-tag><br/>
-                    </li>
-                    <li v-if="monthData[current.format('YYYY-MM-DD').toString()]" v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content" :title="item.content">
-                        <a-badge :status="item.type" :text="item.content" />
-                    </li>
-                </ul>
-            </template>
-        </a-calendar>
+        <div class="calendar">
+            <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:75%;">
+                <template #dateCellRender="{ current }">
+                    <ul class="events">
+                        <li v-if="requestData[current.format('YYYY-MM-DD').toString()]" v-for="request in requestData[current.format('YYYY-MM-DD').toString()]" :key="request.unpaid_flag">
+                            <a-tag v-if="request.early_flag == 1" color="#faad14">Early Arrival {{request.early_time}}m</a-tag><br/>
+                            <a-tag v-if="request.late_flag == 1" color="#faad14">Late Arrival {{request.late_time}}m</a-tag><br/>
+                            <a-tag v-if="request.unpaid_flag == 1" color="#ff4d4f">Unpaid {{request.unpaid_leave}} day</a-tag><br/>
+                        </li>
+                        <li v-if="monthData[current.format('YYYY-MM-DD').toString()]" v-for="item in monthData[current.format('YYYY-MM-DD').toString()]" :key="item.content" :title="item.content">
+                            <a-badge :status="item.type" :text="item.content" />
+                        </li>
+                    </ul>
+                </template>
+            </a-calendar>
+            <inforRequestMember></inforRequestMember>
+        </div>
     </a-spin>
 </template>
 
 <script>
 import event from './event.vue';
 import request from './request.vue';
+import inforRequestMember from './infor-request-member.vue';
 import { defineComponent, ref, onMounted, onBeforeMount, createVNode } from 'vue';
 import axios from 'axios';
 import moment from 'moment';
@@ -59,7 +63,8 @@ import { Modal } from 'ant-design-vue';
 export default defineComponent({
     components: {
         event,
-        request
+        request,
+        inforRequestMember
     },
     data() {
         return {
@@ -269,4 +274,8 @@ export default defineComponent({
     overflow-x: hidden;
 }
 
+.calendar {
+    display: flex;
+    column-gap: 10px;
+}
 </style>

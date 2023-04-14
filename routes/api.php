@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\RequestApproveController;
 use App\Http\Controllers\RequestController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,7 +24,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('calendar', [EventController::class, 'calendar']);
+Route::post('login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->get('calendar', [EventController::class, 'calendar']);
 Route::post('save-event', [EventController::class, 'saveEvent']);
 Route::get('attendances/{date}', [CalendarController::class, 'attendances']);
 Route::get('duration', [CalendarController::class, 'duration']);
@@ -32,3 +35,4 @@ Route::get('get-calendar-by-date/{date}', [RequestController::class, 'getCalenda
 Route::get('approver', [RequestApproveController::class, 'listApprovers']);
 Route::get('my-request', [RequestController::class, 'myRequest']);
 Route::put('approve-request/{type}/{code}', [RequestController::class, 'approveRequest']);
+Route::middleware('auth:sanctum')->get('infor', [UserController::class, 'infor']);

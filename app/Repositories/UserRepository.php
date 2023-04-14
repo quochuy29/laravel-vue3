@@ -20,4 +20,6 @@ interface UserRepository
 
     public function findOneByConditions($conditions);
 
+    public function getInfor();
+
 }

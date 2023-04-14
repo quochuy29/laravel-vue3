@@ -12,6 +12,7 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
+        "@ant-design-vue/pro-layout": "^3.2.3",
         "@ant-design/icons-vue": "^6.1.0",
         "@vitejs/plugin-vue": "^4.0.0",
         "ant-design-vue": "^3.2.15",
