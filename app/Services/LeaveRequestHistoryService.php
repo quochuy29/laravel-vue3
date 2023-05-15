@@ -18,6 +18,7 @@ class LeaveRequestHistoryService extends BaseService
 
     public function __construct(LeaveRequestRepositoryImpl $leaveRequestRepo)
     {
+        parent::__construct();
         $this->leaveRequestRepo = $leaveRequestRepo;
     }
     
@@ -29,9 +30,14 @@ class LeaveRequestHistoryService extends BaseService
         return LeaveRequestHistoryRepository::class;
     }
 
-    public function listEvent($request)
+    public function myHistory()
     {
-        return $this->_repository->listEvent($request);
+        $member = [
+            'user_code' => auth()->user()->code ?? '',
+            'user_name' => auth()->user()->name ?? ''
+        ];
+
+        return $this->_repository->getHistoryByConditions($member);
     }
 
     public function updateDateStart()

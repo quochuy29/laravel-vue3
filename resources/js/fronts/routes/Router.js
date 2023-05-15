@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import index from '../calendar/index.vue';
 import calendar from '../calendar/calendar.vue';
 import myRequest from '../request/index.vue';
+import myHistory from '../leave-history/index.vue';
 import login from '../auth/login.vue';
 import main from '../layout/main.vue';
 
@@ -18,11 +18,6 @@ const routes = [
 		component: main,
 		children: [
 			{
-				path: '/index',
-				name: 'index',
-				component: index
-			},
-			{
 				path: '/calendar',
 				name: 'calendar',
 				component: calendar
@@ -31,6 +26,11 @@ const routes = [
 				path: '/my-request',
 				name: 'my-request',
 				component: myRequest
+			},
+			{
+				path: '/my-history',
+				name: 'my-history',
+				component: myHistory
 			}
 		]
 	}

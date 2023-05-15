@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Repositories\RequestRepository;
 use App\Repositories\Impl\UserRepositoryImpl;
 use App\Repositories\Impl\CalendarRepositoryImpl;
+use App\Repositories\Impl\ConfigRequestRepositoryImpl;
 use App\Repositories\Impl\RequestTypeRepositoryImpl;
 
 /**
@@ -27,6 +28,7 @@ class RequestService extends BaseService
     protected $requestTypeRepo;
     protected $calendarRepo;
     protected $calendarSer;
+    protected $configRequestRepo;
     protected $type = [
         'approve' => 'đã được phê duyệt',
         'pending' => 'tạm chưa giải quyết',
@@ -35,11 +37,13 @@ class RequestService extends BaseService
     ];
 
     const TABLE_APPROVE_STATUS = 'approve_status';
+    const TIMES_CREATE_REQUEST = 'times_create_request';
 
     public function __construct(
         UserRepositoryImpl $userRepo,
         RequestTypeRepositoryImpl $requestTypeRepo,
         CalendarRepositoryImpl $calendarRepo,
+        ConfigRequestRepositoryImpl $configRequestRepo,
         CalendarService $calendarSer)
     {
         parent::__construct();
@@ -47,6 +51,7 @@ class RequestService extends BaseService
         $this->requestTypeRepo = $requestTypeRepo;
         $this->calendarRepo = $calendarRepo;
         $this->calendarSer = $calendarSer;
+        $this->configRequestRepo = $configRequestRepo;
     }
 
     /**
@@ -77,6 +82,7 @@ class RequestService extends BaseService
             Carbon::parse($request->date)->format('Y-m-d') . " {$timeRequest['startTime']}";
         $approver = explode('_', $request->approver);
         $requestType = $this->requestTypeRepo->find($request->type, ['request_type_code', 'request_type_name']);
+
         $calendarCode = $this->calendarRepo->findOneByConditions([
             'user_name' => 'huypq1',
             'user_code' => 'dv900n',
@@ -126,6 +132,14 @@ class RequestService extends BaseService
         }
 
         $requestData = $this->_repository->findOneByConditions(['request_code' => $request->code, 'approve_status' => 0]);
+        $requestType = $this->requestTypeRepo->getTypeRequestByCondition(['request_type_code' => $requestData['request_type_code']]);
+        $countRequestMonth = $this->_repository->countRequestByMonth(Carbon::parse($request->date)->format('Y-m'));
+        $configRequest = $this->configRequestRepo->getConfigRequest(self::TIMES_CREATE_REQUEST, $requestType->request_type_code, $requestType->request_type_name);
+
+        if ($configRequest === false || $countRequestMonth >= (int) $configRequest->value) {
+            return response()->json(['message' => "The number of times to create {$requestType->request_type_name} requests has expired"]);
+        }
+
 
         if (!$requestData) {
             return false;

@@ -7,7 +7,7 @@
             <a-date-picker v-model:value="year" picker="year" format="YYYY" />
         </a-col>
     </a-row>
-    
+
     <a-table :columns="columns" :pagination="false" :data-source="myRequest" :loading="loading" @change="onChange" bordered>
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'request_type_name'">
@@ -50,7 +50,7 @@
             </template>
         </template>
     </a-table>
-    <a-pagination v-model:current="current" :total="13" show-less-items @change="changePage" />
+    <a-pagination v-model:current="current" :total="page" :defaultPageSize="10" show-less-items @change="changePage" />
 </template>
 
 <script>
@@ -81,6 +81,7 @@
             const loading = ref(true);
             const month = ref(dayjs());
             const year = ref(dayjs());
+            const page = ref(10);
             const params = {
                 search: {
                     month: month.value.format('MM'),
@@ -146,6 +147,7 @@
             const getRequest = async (params) => {
                 loading.value = true;
                 const res =  await axios.get('api/my-request', {params});
+                page.value = (res.data.total < 10) ? 10 : res.data.total;
                 myRequest.value = res.data.data;
                 loading.value = !loading.value;
             };
@@ -170,7 +172,8 @@
                 onChange,
                 month,
                 year,
-                params
+                params,
+                page
             }
         },
         methods: {

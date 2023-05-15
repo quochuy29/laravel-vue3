@@ -1,12 +1,12 @@
 import './bootstrap';
 import {createApp} from 'vue';
 import Antd from 'ant-design-vue';
-import 'ant-design-vue/dist/antd.css';
 
 import App from './fronts/App.vue';
 import Router from './fronts/routes/Router';
 import load from '@/windowLoad/load';
 import ProLayout, { PageContainer } from '@ant-design-vue/pro-layout';
+import 'ant-design-vue/dist/antd.css';
 import '@ant-design-vue/pro-layout/dist/style.css';
 
 const app = createApp(App).use(ProLayout).use(PageContainer).use(Router).use(Antd);
@@ -22,6 +22,8 @@ importCommonComponents();
 const infor = JSON.parse(sessionStorage.getItem('inforUser'));
 if (infor) {
     window.axios.defaults.headers.common["Authorization"] = `${infor.token_type} ${infor.access_token}`;
+} else {
+  Router.push({ path: '/login' })
 }
 window.addEventListener('load', load, false);
 app.mount("#app");

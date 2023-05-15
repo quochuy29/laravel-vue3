@@ -11,4 +11,8 @@ class LeaveRequestHistory extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = "leave_request_histories";
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:i:s'
+    ];
 }

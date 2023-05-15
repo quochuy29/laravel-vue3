@@ -25,11 +25,12 @@ class LeaveRequestHistoryRepositoryImpl extends BaseRepositoryImpl implements Le
         return LeaveRequestHistory::class;
     }
 
-    public function listEvent($request)
+    public function getHistoryByConditions($condition = [])
     {
-        $datas = Event::pluck('title', 'date')->toArray();
+        $query = LeaveRequestHistory::where($condition)
+                ->paginate(10);
 
-        return $datas;
+        return $query;
     }
 
     public function insertHistoryLeaveRequest() 

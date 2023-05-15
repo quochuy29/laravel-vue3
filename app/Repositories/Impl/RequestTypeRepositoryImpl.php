@@ -23,8 +23,11 @@ class RequestTypeRepositoryImpl extends BaseRepositoryImpl implements RequestTyp
         return RequestType::class;
     }
 
-    public function listEvent($request)
+    public function getTypeRequestByCondition($condition = [])
     {
+        $query = RequestType::where($condition)->first();
+
+        return $query;
     }
 
 }

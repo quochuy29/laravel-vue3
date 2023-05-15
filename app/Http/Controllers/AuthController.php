@@ -18,7 +18,7 @@ class AuthController extends Controller
         ];
         
         if (!Auth::attempt($credentials)) {
-            throw ValidationException::withMessages([
+            return throw ValidationException::withMessages([
                 'message' => ['The provided credentials are incorrect.'],
             ]);
         }

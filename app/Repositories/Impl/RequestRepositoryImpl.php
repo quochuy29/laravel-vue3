@@ -48,4 +48,28 @@ class RequestRepositoryImpl extends BaseRepositoryImpl implements RequestReposit
 
         return $query->paginate(10);
     }
+
+    public function countRequestByMonth($month, $approve = true)
+    {
+        $query = Request::where(DB::raw("DATE_FORMAT(start_time, '%Y-%m')"), $month)
+        ->where('approve_status', $approve ? 1 : 0)
+        ->count();
+
+        return $query;
+    }
+
+    public function handleRequestAfterMonth($month)
+    {
+        if (!$month) {
+            return false;
+        }
+
+        $query = Request::where(DB::raw("DATE_FORMAT(start_time, '%Y-%m')"), $month)
+        ->where('approve_status', 0)
+        ->update([
+            'approve_status' => 4
+        ]);
+
+        return $query;
+    }
 }

@@ -50,7 +50,7 @@ export default defineComponent({
         const email = ref('');
         const password = ref('');
         const error = ref('');
-        const router = useRouter()
+        const router = useRouter();
         const login = async () => {
             error.value = '';
             const data = {
@@ -60,11 +60,14 @@ export default defineComponent({
             try {
                 const response = await axios.post('api/login', data);
                 sessionStorage.setItem('inforUser', JSON.stringify(response.data));
+                const infor = JSON.parse(sessionStorage.getItem('inforUser'));
+                window.axios.defaults.headers.common["Authorization"] = `${infor.token_type} ${infor.access_token}`;
+                console.log(response.status);
                 if (response.status = 200) {
                     router.push({name: 'calendar'});
                 }
             } catch (errors) {
-                error.value = errors.response.data.message; 
+                error.value = errors.response.data.message;
             }
         }
         return {

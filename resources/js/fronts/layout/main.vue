@@ -2,17 +2,23 @@
     <a-layout has-sider>
         <a-layout-sider v-model:collapsed="collapsed" collapsible :trigger="null" :style="{ overflow: 'hidden', height: '100vh', position: 'sticky', left: 0, top: 0, bottom: 0, paddingTop:'64px' }">
             <a-menu v-model:selectedKeys="selectedKeys" theme="light" mode="inline" :style="{ width: '100%'}">
-                <a-menu-item key="1">
+                <a-menu-item key="calendar">
                     <user-outlined />
-                    <span class="nav-text">nav 1</span>
+                    <span class="nav-text">
+                        <router-link @click="checkSelected" to="/calendar">Calendar</router-link>
+                    </span>
                 </a-menu-item>
-                <a-menu-item key="2">
+                <a-menu-item key="my-request">
                     <video-camera-outlined />
-                    <span class="nav-text">nav 2</span>
+                    <span class="nav-text">
+                        <router-link @click="checkSelected" to="/my-request">My request</router-link>
+                    </span>
                 </a-menu-item>
-                <a-menu-item key="3">
+                <a-menu-item key="my-history">
                     <upload-outlined />
-                    <span class="nav-text">nav 3</span>
+                    <span class="nav-text">
+                        <router-link @click="checkSelected" to="/my-history">My history</router-link>
+                    </span>
                 </a-menu-item>
                 <a-menu-item key="4">
                     <bar-chart-outlined />
@@ -61,7 +67,8 @@
 
 <script>
 import { UserOutlined, VideoCameraOutlined, UploadOutlined, BarChartOutlined, CloudOutlined, AppstoreOutlined, TeamOutlined, ShopOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons-vue';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onBeforeMount } from 'vue';
+import { useRouter } from 'vue-router'
 export default defineComponent({
     components: {
         UserOutlined,
@@ -76,9 +83,20 @@ export default defineComponent({
         MenuFoldOutlined
     },
     setup() {
+        const route = useRouter();
+        const currentRoute = ref(['']);
+        onBeforeMount(() => {
+            checkSelected();
+        });
+
+        const checkSelected = () => {
+            currentRoute.value = [route.currentRoute.value.name];
+        };
+
         return {
             collapsed: ref(false),
-            selectedKeys: ref(['4'])
+            selectedKeys: currentRoute,
+            checkSelected
         };
     }
 });

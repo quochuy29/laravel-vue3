@@ -9,17 +9,13 @@ namespace App\Repositories;
  * @author Huypq
 */
 
-interface LeaveRequestHistoryRepository
+interface ConfigRequestRepository
 {
     /**
      * Configure the Model
      **/
     public function model();
 
-    public function getHistoryByConditions(array $condition = []);
-
     public function upsert(array $value = [], array $condition, array $column);
-
-    public function insertHistoryLeaveRequest();
 
 }

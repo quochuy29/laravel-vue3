@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind("App\Repositories\LeaveRequestRepository", "App\Repositories\Impl\LeaveRequestRepositoryImpl");
         $this->app->bind("App\Repositories\LeaveRequestHistoryRepository", "App\Repositories\Impl\LeaveRequestHistoryRepositoryImpl");
         $this->app->bind("App\Repositories\UserRepository", "App\Repositories\Impl\UserRepositoryImpl");
+        $this->app->bind("App\Repositories\ConfigRequestRepository", "App\Repositories\Impl\ConfigRequestRepositoryImpl");
     }
 
     /**
