@@ -33,4 +33,9 @@ class RequestController extends Controller
     {
         return $this->requestSV->approveRequest($request);
     }
+
+    public function requestFromMyMember()
+    {
+        return $this->requestSV->requestFromMyMember();
+    }
 }

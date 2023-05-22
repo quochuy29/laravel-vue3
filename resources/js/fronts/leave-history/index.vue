@@ -46,7 +46,6 @@
                 loading.value = true;
                 const res =  await axios.get('api/my-history', {params});
                 page.value = (res.data.total < 10) ? 10 : res.data.total;
-                console.log(res.data)
                 myHistory.value = res.data.data;
                 loading.value = !loading.value;
             };
@@ -111,5 +110,8 @@
 .action-request {
     width: 32px;
     height: 32px;
+}
+.ant-pagination {
+    padding: 10px 10px 0 10px !important;
 }
 </style>

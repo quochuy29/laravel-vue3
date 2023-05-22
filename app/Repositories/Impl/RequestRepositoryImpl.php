@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Impl;
 
+use Carbon\Carbon;
 use App\Models\Request;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\RequestRepository;
@@ -69,6 +70,20 @@ class RequestRepositoryImpl extends BaseRepositoryImpl implements RequestReposit
         ->update([
             'approve_status' => 4
         ]);
+
+        return $query;
+    }
+
+    public function requestFromMyMember()
+    {
+        $month = Carbon::now()->format('Y-m');
+        $query = Request::where([
+            'user_approve_name' => auth()->user()->name,
+            'user_approve_code' => auth()->user()->code,
+            'approve_status' => 0
+        ])
+        ->where(DB::raw("DATE_FORMAT(start_time, '%Y-%m')"), $month)
+        ->paginate(10);
 
         return $query;
     }

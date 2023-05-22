@@ -28,6 +28,16 @@
                 <event ref="data" :dataId.sync="dataId" :time="time" :key="modal2Visible"></event>
             </a-spin>
         </a-modal>
+        <a-modal
+            v-model:visible="visRequestMember"
+            title="Vertically centered modal dialog"
+            centered
+            width="1000px"
+            :footer="null">
+            <a-spin :spinning="dataAccess">
+                <ovlRequestMember :page="page" :myRequest="myRequest" :key="visRequestMember"></ovlRequestMember>
+            </a-spin>
+        </a-modal>
         <div class="calendar">
             <a-calendar v-model:value="value" @select="openCreateEvent(value)" :key="modal2Visible" style="width:75%;">
                 <template #dateCellRender="{ current }">
@@ -43,13 +53,14 @@
                     </ul>
                 </template>
             </a-calendar>
-            <inforRequestMember></inforRequestMember>
+            <inforRequestMember v-on:openRequestMember="openRequestMember"></inforRequestMember>
         </div>
     </a-spin>
 </template>
 
 <script>
 import event from './event.vue';
+import ovlRequestMember from './ovl/ovl-request-member.vue';
 import request from './request.vue';
 import inforRequestMember from './infor-request-member.vue';
 import { defineComponent, ref, onMounted, onBeforeMount, createVNode } from 'vue';
@@ -64,7 +75,8 @@ export default defineComponent({
     components: {
         event,
         request,
-        inforRequestMember
+        inforRequestMember,
+        ovlRequestMember
     },
     data() {
         return {
@@ -75,6 +87,9 @@ export default defineComponent({
             dataId: null,
             visRequest: false,
             visChooseAction: false,
+            visRequestMember: false,
+            myRequest: {},
+            page: 1
         }
     },
     setup() {
@@ -199,7 +214,7 @@ export default defineComponent({
                 this.modal2Visible = false;
                 this.dataAccess = false;
             } catch (error) {
-                this.$refs.data.handleErrors(error.response.data.errors);
+                this.$refs.data.handleErrors(error.response.data);
                 this.dataAccess = false;
             }
         },
@@ -210,6 +225,12 @@ export default defineComponent({
             this.visChooseAction = false;
             this.visRequest = false;
             this.modal2Visible = false;
+        },
+        async openRequestMember() {
+            const res =  await axios.get('api/request-from-my-member');
+            this.page = (res.data.total < 10) ? 10 : res.data.total;
+            this.myRequest = res.data.data;
+            this.visRequestMember = true;
         }
     },
 });

@@ -471,4 +471,9 @@ class RequestService extends BaseService
         $dataBuild['checkout'] = ($lateTimeRemain <= 0) ? '17:30' : $dataFresh['start_time'];
         $dataBuild['early_flag'] = ($lateTimeRemain <= 0) ? 0 : 1;
     }
+
+    public function requestFromMyMember()
+    {
+       return $this->_repository->requestFromMyMember();
+    }
 }

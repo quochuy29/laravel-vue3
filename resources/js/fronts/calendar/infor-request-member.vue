@@ -13,6 +13,7 @@
         </a-card>
         <a-card style="height: 50%;">
             <p>Request From My Member</p>
+            <div @click="openRequestMember">huypq</div>
         </a-card>
     </div>
 </template>
@@ -39,7 +40,12 @@
                 member, 
                 loading
             };
-        }
+        },
+        methods: {
+            openRequestMember() {
+                this.$emit('openRequestMember');
+            }
+        },
     });
 </script>
 

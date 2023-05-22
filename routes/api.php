@@ -38,3 +38,4 @@ Route::middleware('auth:sanctum')->get('my-request', [RequestController::class, 
 Route::middleware('auth:sanctum')->put('approve-request/{type}/{code}', [RequestController::class, 'approveRequest']);
 Route::middleware('auth:sanctum')->get('infor', [UserController::class, 'infor']);
 Route::middleware('auth:sanctum')->get('my-history', [LeaveRequestHistoryController::class, 'myHistory']);
+Route::middleware('auth:sanctum')->get('request-from-my-member', [RequestController::class, 'requestFromMyMember']);
