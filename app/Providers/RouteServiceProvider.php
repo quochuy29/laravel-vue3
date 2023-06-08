@@ -45,4 +45,9 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
     }
+
+    protected function centralDomains(): array
+    {
+        return config('tenancy.central_domains', []);
+    }
 }

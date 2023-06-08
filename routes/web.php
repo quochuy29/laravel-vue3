@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\SubdomainController;
 use Illuminate\Support\Facades\Route;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +16,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/{any}', function () {
-    return view('welcome');
+Route::middleware([
+    'web',
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+])->group(function () {
+    Route::get('create-subdomain', function () {
+        return view('create-subdomain');
+    });
+    Route::post('store-subdomain', [SubdomainController::class, 'storeSubdomain'])->name('store-subdomain');
+    Route::get('/{any}', function () {
+        return view('welcome');
+    });
 });
